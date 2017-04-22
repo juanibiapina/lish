@@ -9,12 +9,14 @@ impl Repl {
     }
 
     pub fn run(&self) {
-        print!(":) ");
-        io::stdout().flush().ok().expect("Could not flush stdout");
+        loop {
+            print!(":) ");
+            io::stdout().flush().ok().expect("Could not flush stdout");
 
-        let mut line = String::new();
+            let mut line = String::new();
 
-        io::stdin().read_line(&mut line).expect("Could not read standard input");
-        println!("{}", line);
+            io::stdin().read_line(&mut line).expect("Could not read standard input");
+            print!("{}", line);
+        }
     }
 }
