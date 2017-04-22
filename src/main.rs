@@ -1,11 +1,9 @@
-use std::io;
-use std::io::Write;
+extern crate lish;
+
+use lish::Repl;
 
 fn main() {
-    print!(":) ");
-    io::stdout().flush().ok().expect("Could not flush stdout");
+    let repl = Repl::new();
 
-    let mut line = String::new();
-
-    io::stdin().read_line(&mut line).expect("Could not read standard input");
+    repl.run();
 }
