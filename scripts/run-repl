@@ -24,11 +24,12 @@ for line in open(test_file_name):
     # assertions
     if line.startswith(";=>"):
         expected = line[3:].strip()
-        actual = stdout.readline()[3:].strip()
+        actual = stdout.readline().strip()
 
         if expected != actual:
             failed += 1
 
+            print
             print "Test failed"
             print "Expected: " + expected
             print "Actual:   " + actual

@@ -1,9 +1,9 @@
 extern crate lish;
 
-use lish::Repl;
+use lish::repl::Repl;
 
 fn main() {
-    let repl = Repl::new();
+    let mut repl = Repl::new();
 
     repl.run();
 }
