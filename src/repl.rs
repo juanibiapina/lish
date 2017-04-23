@@ -1,6 +1,7 @@
 extern crate rustyline;
 
 use error::Error;
+use error::Result;
 
 use readliner::create_readliner;
 use readliner::Readliner;
@@ -18,12 +19,8 @@ impl Repl {
 
     pub fn run(&mut self) {
         loop {
-            let line = self.readliner.readline();
-
-            match line {
-                Ok(line) => {
-                    println!("{}", line);
-                },
+            match self.rep() {
+                Ok(()) => {},
                 Err(Error::Interrupted) => {},
                 Err(Error::Eof) => {
                     break
@@ -34,5 +31,13 @@ impl Repl {
                 }
             }
         }
+    }
+
+    fn rep(&mut self) -> Result<()> {
+        let line = self.readliner.readline()?;
+
+        println!("{}", line);
+
+        Ok(())
     }
 }
