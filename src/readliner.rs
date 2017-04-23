@@ -1,3 +1,4 @@
+extern crate libc;
 extern crate rustyline;
 
 use std::io;
@@ -43,5 +44,15 @@ impl Readliner for StdinReadliner {
         input.pop();
 
         Ok(input)
+    }
+}
+
+pub fn create_readliner() -> Box<Readliner> {
+    let istty = unsafe { libc::isatty(libc::STDIN_FILENO as i32) } != 0;
+
+    if istty {
+        Box::new(RustylineReadliner::new())
+    } else {
+        Box::new(StdinReadliner::new())
     }
 }

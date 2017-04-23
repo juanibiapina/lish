@@ -1,11 +1,9 @@
-extern crate libc;
 extern crate rustyline;
 
 use error::Error;
 
+use readliner::create_readliner;
 use readliner::Readliner;
-use readliner::RustylineReadliner;
-use readliner::StdinReadliner;
 
 pub struct Repl {
     readliner: Box<Readliner>,
@@ -13,18 +11,8 @@ pub struct Repl {
 
 impl Repl {
     pub fn new() -> Repl {
-        let istty = unsafe { libc::isatty(libc::STDIN_FILENO as i32) } != 0;
-
-        let readliner: Box<Readliner>;
-
-        if istty {
-            readliner = Box::new(RustylineReadliner::new());
-        } else {
-            readliner = Box::new(StdinReadliner::new());
-        }
-
         Repl {
-            readliner: readliner,
+            readliner: create_readliner(),
         }
     }
 
