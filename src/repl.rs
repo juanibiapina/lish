@@ -36,7 +36,25 @@ impl Repl {
     fn rep(&mut self) -> Result<()> {
         let line = self.readliner.readline()?;
 
-        println!("{}", line);
+        self.process(line)
+    }
+
+    fn process(&mut self, input: String) -> Result<()> {
+        if input.starts_with("(") {
+            self.process_lisp(input)
+        } else {
+            self.process_shell(input)
+        }
+    }
+
+    fn process_lisp(&mut self, input: String) -> Result<()> {
+        println!("{}", input);
+
+        Ok(())
+    }
+
+    fn process_shell(&mut self, input: String) -> Result<()> {
+        println!("{}", input);
 
         Ok(())
     }
