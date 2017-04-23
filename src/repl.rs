@@ -36,12 +36,8 @@ impl Repl {
                 Ok(line) => {
                     println!("{}", line);
                 },
-                Err(Error::Interrupted) => {
-                    println!("CTRL-C");
-                    break
-                },
+                Err(Error::Interrupted) => {},
                 Err(Error::Eof) => {
-                    println!("CTRL-D");
                     break
                 },
                 Err(err) => {
