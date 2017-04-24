@@ -6,10 +6,12 @@ use error::Result;
 use readliner::create_readliner;
 use readliner::Readliner;
 use lisp::engine::Engine as LispEngine;
+use shell::engine::Engine as ShellEngine;
 
 pub struct Repl {
     readliner: Box<Readliner>,
     lisp_engine: LispEngine,
+    shell_engine: ShellEngine,
 }
 
 impl Repl {
@@ -17,6 +19,7 @@ impl Repl {
         Repl {
             readliner: create_readliner(),
             lisp_engine: LispEngine::new(),
+            shell_engine: ShellEngine::new(),
         }
     }
 
@@ -59,7 +62,9 @@ impl Repl {
     }
 
     fn process_shell(&mut self, input: String) -> Result<()> {
-        println!("{}", input);
+        let result = self.shell_engine.run(&input)?;
+
+        println!("{}", result);
 
         Ok(())
     }
