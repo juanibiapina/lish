@@ -5,15 +5,18 @@ use error::Result;
 
 use readliner::create_readliner;
 use readliner::Readliner;
+use lisp::engine::Engine as LispEngine;
 
 pub struct Repl {
     readliner: Box<Readliner>,
+    lisp_engine: LispEngine,
 }
 
 impl Repl {
     pub fn new() -> Repl {
         Repl {
             readliner: create_readliner(),
+            lisp_engine: LispEngine::new(),
         }
     }
 
@@ -48,7 +51,9 @@ impl Repl {
     }
 
     fn process_lisp(&mut self, input: String) -> Result<()> {
-        println!("{}", input);
+        let result = self.lisp_engine.run(&input)?;
+
+        println!("{}", result);
 
         Ok(())
     }
