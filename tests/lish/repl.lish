@@ -1,5 +1,5 @@
-lol
+/bin/echo lol
 ;=>lol
 
-text
+/bin/echo text
 ;=>text

@@ -62,9 +62,7 @@ impl Repl {
     }
 
     fn process_shell(&mut self, input: String) -> Result<()> {
-        let result = self.shell_engine.run(&input)?;
-
-        println!("{}", result);
+        self.shell_engine.run(&input)?;
 
         Ok(())
     }
