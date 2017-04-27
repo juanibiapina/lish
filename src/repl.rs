@@ -28,6 +28,9 @@ impl Repl {
                 Err(Error::Eof) => {
                     break
                 },
+                Err(Error::IoError(e)) => {
+                    println!("{}", e);
+                },
                 Err(err) => {
                     println!("Error: {:?}", err);
                     break
