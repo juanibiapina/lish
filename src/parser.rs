@@ -33,5 +33,30 @@ named!(shell_expr<&str, ShellExpr>,
 );
 
 named!(word<&str, &str>,
-    re_find!(r"(?:[[:word:]]|/)+")
+    re_find!(r"^(?:[[:word:]]|/|-)+")
 );
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_simple_command() {
+        assert_eq!(program("ls"), IResult::Done("", Ast::ShellAst(ShellExpr { command: "ls".to_string(), args: Vec::new() })));
+    }
+
+    #[test]
+    fn parse_command_with_slash() {
+        assert_eq!(program("/bin/echo"), IResult::Done("", Ast::ShellAst(ShellExpr { command: "/bin/echo".to_string(), args: Vec::new() })));
+    }
+
+    #[test]
+    fn parse_command_with_one_argument() {
+        assert_eq!(program("ls -la"), IResult::Done("", Ast::ShellAst(ShellExpr { command: "ls".to_string(), args: vec!("-la".to_string()) })));
+    }
+
+    #[test]
+    fn parse_command_with_several_arguments() {
+        assert_eq!(program("ls -l -a file"), IResult::Done("", Ast::ShellAst(ShellExpr { command: "ls".to_string(), args: vec!("-l".to_string(), "-a".to_string(), "file".to_string()) })));
+    }
+}

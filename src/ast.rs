@@ -1,7 +1,11 @@
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Ast {
     ShellAst(ShellExpr),
 }
 
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub struct ShellExpr {
     pub command: String,
     pub args: Vec<String>,
