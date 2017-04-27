@@ -5,21 +5,18 @@ use error::Result;
 
 use readliner::create_readliner;
 use readliner::Readliner;
-use lisp::engine::Engine as LispEngine;
-use shell::engine::Engine as ShellEngine;
+use engine::Engine;
 
 pub struct Repl {
     readliner: Box<Readliner>,
-    lisp_engine: LispEngine,
-    shell_engine: ShellEngine,
+    engine: Engine,
 }
 
 impl Repl {
     pub fn new() -> Repl {
         Repl {
             readliner: create_readliner(),
-            lisp_engine: LispEngine::new(),
-            shell_engine: ShellEngine::new(),
+            engine: Engine::new(),
         }
     }
 
@@ -42,27 +39,7 @@ impl Repl {
     fn rep(&mut self) -> Result<()> {
         let line = self.readliner.readline()?;
 
-        self.process(line)
-    }
-
-    fn process(&mut self, input: String) -> Result<()> {
-        if input.starts_with("(") {
-            self.process_lisp(input)
-        } else {
-            self.process_shell(input)
-        }
-    }
-
-    fn process_lisp(&mut self, input: String) -> Result<()> {
-        let result = self.lisp_engine.run(&input)?;
-
-        println!("{}", result);
-
-        Ok(())
-    }
-
-    fn process_shell(&mut self, input: String) -> Result<()> {
-        self.shell_engine.run(&input)?;
+        self.engine.run(&line)?;
 
         Ok(())
     }

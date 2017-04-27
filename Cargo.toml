@@ -6,3 +6,8 @@ authors = ["Juan Ibiapina <juanibiapina@gmail.com>"]
 [dependencies]
 rustyline = "*"
 libc = "*"
+regex = "*"
+
+[dependencies.nom]
+version = "*"
+features = ["regexp"]
