@@ -1,10 +1,14 @@
-pub struct Ast {
+pub enum Ast {
+    ShellAst(ShellExpr),
+}
+
+pub struct ShellExpr {
     pub command: String,
     pub args: Vec<String>,
 }
 
-impl Ast {
-    pub fn new(words: Vec<&str>) -> Ast {
+impl ShellExpr {
+    pub fn new(words: Vec<&str>) -> ShellExpr {
         let mut iter = words.into_iter();
         let command = iter.next().unwrap().to_string();
 
@@ -13,7 +17,7 @@ impl Ast {
             args.push(part.to_string());
         }
 
-        Ast {
+        ShellExpr {
             command: command,
             args: args,
         }
