@@ -9,6 +9,7 @@ use error::Result;
 
 pub trait Readliner {
     fn readline(&mut self) -> Result<String>;
+    fn add_history_entry(&mut self, line: &str) -> bool;
 }
 
 pub struct RustylineReadliner {
@@ -27,6 +28,10 @@ impl Readliner for RustylineReadliner {
     fn readline(&mut self) -> Result<String> {
         Ok(self.editor.readline(":) ")?)
     }
+
+    fn add_history_entry(&mut self, line: &str) -> bool {
+        self.editor.add_history_entry(line)
+    }
 }
 
 pub struct StdinReadliner;
@@ -44,6 +49,10 @@ impl Readliner for StdinReadliner {
         input.pop();
 
         Ok(input)
+    }
+
+    fn add_history_entry(&mut self, _: &str) -> bool {
+        false
     }
 }
 

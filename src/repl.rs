@@ -44,6 +44,8 @@ impl Repl {
 
         self.engine.run(&line)?;
 
+        self.readliner.add_history_entry(&line);
+
         Ok(())
     }
 }
