@@ -31,6 +31,9 @@ impl Repl {
                 Err(Error::IoError(e)) => {
                     println!("{}", e);
                 },
+                Err(Error::ParseError) => {
+                    println!("Parse error");
+                }
                 Err(err) => {
                     println!("Error: {:?}", err);
                     break

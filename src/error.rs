@@ -4,7 +4,6 @@ use std::result;
 use std::io;
 
 use self::rustyline::error::ReadlineError;
-use nom::ErrorKind;
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -14,7 +13,7 @@ pub enum Error {
     Eof,
     ReadlineError(ReadlineError),
     IoError(io::Error),
-    ParseError(ErrorKind),
+    ParseError,
     Incomplete,
 }
 

@@ -16,7 +16,7 @@ impl Parser {
     pub fn parse(&self, input: &str) -> Result<Ast> {
         match program(input) {
             IResult::Done(_, o) => { Ok(o) },
-            IResult::Error(err) => { Err(Error::ParseError(err)) },
+            IResult::Error(_) => { Err(Error::ParseError) },
             IResult::Incomplete(_) => { Err(Error::Incomplete) },
         }
     }
