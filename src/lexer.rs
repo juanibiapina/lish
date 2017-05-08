@@ -9,40 +9,40 @@ use error::Error;
 pub struct Lexer;
 
 impl Lexer {
-	pub fn new() -> Lexer {
-		Lexer
-	}
+    pub fn new() -> Lexer {
+	Lexer
+    }
 
-	pub fn tokenize(&self, input: &str) -> Result<Vec<Token>> {
-        match lex_tokens(input) {
-            IResult::Done(_, tokens) => { Ok(tokens) },
-            IResult::Error(_) => { Err(Error::Unknown) },
-            IResult::Incomplete(_) => { Err(Error::Unknown) },
-        }
+    pub fn tokenize(&self, input: &str) -> Result<Vec<Token>> {
+	match lex_tokens(input) {
+	    IResult::Done(_, tokens) => { Ok(tokens) },
+	    IResult::Error(_) => { Err(Error::Unknown) },
+	    IResult::Incomplete(_) => { Err(Error::Unknown) },
 	}
+    }
 }
 
 named!(lex_tokens<&str, Vec<Token>>, ws!(many0!(lex_token)));
 
 named!(lex_token<&str, Token>,
-	alt_complete!(
-		lex_word |
-		lex_illegal
-	)
+    alt_complete!(
+	lex_word |
+	lex_illegal
+    )
 );
 
 named!(lex_word<&str, Token>,
-	do_parse!(
-		w: re_find!(r"^(?:[[:word:]]|/|-)+") >>
-		(Token::Word(w.to_string()))
-	)
+    do_parse!(
+	w: re_find!(r"^(?:[[:word:]]|/|-)+") >>
+	(Token::Word(w.to_string()))
+    )
 );
 
 named!(lex_illegal<&str, Token>,
-	do_parse!(
-	    c: take_s!(1) >>
-	    (Token::Illegal(c.to_string()))
-	)
+    do_parse!(
+	c: take_s!(1) >>
+	(Token::Illegal(c.to_string()))
+    )
 );
 
 #[cfg(test)]
