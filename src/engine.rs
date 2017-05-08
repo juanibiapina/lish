@@ -1,18 +1,20 @@
 use std::process::Command;
 
-use ast::Ast;
+use token::Tokens;
+use ast::Program;
+use lexer::Lexer;
 use parser::Parser;
+use error::Result;
 
 pub struct Engine {
+    lexer: Lexer,
     parser: Parser,
 }
 
-use error::Result;
-
-fn eval(ast: Ast) -> Result<()> {
-    match ast {
-        Ast::ShellAst(shell_expr) => {
-            let mut child = Command::new(&shell_expr.command).args(&shell_expr.args).spawn()?;
+fn eval(program: Program) -> Result<()> {
+    match program {
+        Program::ShellProgram(shell_expr) => {
+            let mut child = Command::new(&shell_expr.command.0).args(shell_expr.args.iter().map(|a| &a.0)).spawn()?;
 
             child.wait()?;
 
@@ -25,11 +27,13 @@ impl Engine {
     pub fn new() -> Engine {
         Engine {
             parser: Parser::new(),
+            lexer: Lexer::new(),
         }
     }
 
     pub fn run(&self, input: &str) -> Result<()> {
-        let ast = self.parser.parse(input)?;
+        let tokens = self.lexer.tokenize(input)?;
+        let ast = self.parser.parse(Tokens::new(&tokens))?;
 
         eval(ast)
     }

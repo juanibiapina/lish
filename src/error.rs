@@ -15,6 +15,7 @@ pub enum Error {
     IoError(io::Error),
     ParseError,
     Incomplete,
+    Unknown,
 }
 
 impl From<ReadlineError> for Error {
