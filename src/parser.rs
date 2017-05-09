@@ -17,29 +17,25 @@ impl Parser {
     pub fn parse(&self, tokens: Tokens) -> Result<ast::Program> {
         match program(tokens) {
             IResult::Done(i, o) => {
-              if i.tok.len() == 0 {
-                Ok(o)
-              } else {
-                Err(Error::UnexpectedToken(i.tok[0].clone()))
-              }
-            },
+                if i.tok.len() == 0 {
+                    Ok(o)
+                } else {
+                    Err(Error::UnexpectedToken(i.tok[0].clone()))
+                }
+            }
             IResult::Error(err) => {
-              match err {
-                nom::Err::Code(_) => {
-                  Err(Error::ParseError)
-                },
-                nom::Err::Node(_, _) => {
-                  Err(Error::ParseError)
-                },
-                nom::Err::Position(_, tokens) => {
-                  Err(Error::UnexpectedToken(tokens.tok[0].clone()))
-                },
-                nom::Err::NodePosition(_, tokens, _) => {
-                  Err(Error::UnexpectedToken(tokens.tok[0].clone()))
-                },
-              }
-            },
-            IResult::Incomplete(_) => { Err(Error::Incomplete) },
+                match err {
+                    nom::Err::Code(_) => Err(Error::ParseError),
+                    nom::Err::Node(_, _) => Err(Error::ParseError),
+                    nom::Err::Position(_, tokens) => {
+                        Err(Error::UnexpectedToken(tokens.tok[0].clone()))
+                    }
+                    nom::Err::NodePosition(_, tokens, _) => {
+                        Err(Error::UnexpectedToken(tokens.tok[0].clone()))
+                    }
+                }
+            }
+            IResult::Incomplete(_) => Err(Error::Incomplete),
         }
     }
 }
@@ -92,15 +88,11 @@ mod tests {
     #[test]
     fn parse_shell_expr() {
         let input = "ls -la file";
-        let expected = ast::Program::ShellProgram(
-            ast::ShellExpr {
-                command: ast::Word("ls".to_string()),
-                args: vec!(
-                    ast::Word("-la".to_string()),
-                    ast::Word("file".to_string()),
-                ),
-            }
-        );
+        let expected = ast::Program::ShellProgram(ast::ShellExpr {
+                                                      command: ast::Word("ls".to_string()),
+                                                      args: vec![ast::Word("-la".to_string()),
+                                                                 ast::Word("file".to_string())],
+                                                  });
 
         assert_input_with_ast(input, expected);
     }
@@ -111,12 +103,12 @@ mod tests {
         let err = parse(input).unwrap_err();
 
         match err {
-          Error::UnexpectedToken(Token::Illegal(s)) => {
-            assert_eq!(s, "^".to_owned());
-          },
-          _ => {
-            assert!(false);
-          }
+            Error::UnexpectedToken(Token::Illegal(s)) => {
+                assert_eq!(s, "^".to_owned());
+            }
+            _ => {
+                assert!(false);
+            }
         }
     }
 
@@ -126,12 +118,12 @@ mod tests {
         let err = parse(input).unwrap_err();
 
         match err {
-          Error::UnexpectedToken(Token::Illegal(s)) => {
-            assert_eq!(s, "^".to_owned());
-          },
-          _ => {
-            assert!(false);
-          }
+            Error::UnexpectedToken(Token::Illegal(s)) => {
+                assert_eq!(s, "^".to_owned());
+            }
+            _ => {
+                assert!(false);
+            }
         }
     }
 }

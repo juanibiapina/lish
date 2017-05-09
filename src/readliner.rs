@@ -18,9 +18,7 @@ pub struct RustylineReadliner {
 
 impl RustylineReadliner {
     pub fn new() -> RustylineReadliner {
-        RustylineReadliner {
-            editor: Editor::<()>::new(),
-        }
+        RustylineReadliner { editor: Editor::<()>::new() }
     }
 }
 

@@ -13,21 +13,17 @@ pub enum Token {
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Token::Word(ref s) => {
-                write!(f, "{}", s)
-            },
-            Token::Illegal(ref s) => {
-                write!(f, "{}", s)
-            },
+            Token::Word(ref s) => write!(f, "{}", s),
+            Token::Illegal(ref s) => write!(f, "{}", s),
         }
     }
 }
 
 // Needed for nom to work with non u8 slices: https://github.com/Geal/nom/issues/380
-// Copied from: https://github.com/Rydgel/monkey-rust/blob/3712c778694179925a6a9dc314f6a80f1c21acd6/lib/lexer/token.rs
+// Copied from https://github.com/Rydgel/monkey-rust/blob/3712c778694179925a6a9dc314f6a80f1c21acd6/lib/lexer/token.rs
 #[derive(Clone,Copy,PartialEq,Debug)]
 pub struct Tokens<'a> {
-    pub tok: &'a[Token],
+    pub tok: &'a [Token],
     pub start: usize,
     pub end: usize,
 }
@@ -157,9 +153,9 @@ impl<'a> Slice<RangeFull> for Tokens<'a> {
 }
 
 impl<'a> InputIter for Tokens<'a> {
-    type Item     = &'a Token;
-    type RawItem  = Token;
-    type Iter     = Enumerate<::std::slice::Iter<'a, Token>>;
+    type Item = &'a Token;
+    type RawItem = Token;
+    type Iter = Enumerate<::std::slice::Iter<'a, Token>>;
     type IterElem = ::std::slice::Iter<'a, Token>;
 
     #[inline]
@@ -171,11 +167,13 @@ impl<'a> InputIter for Tokens<'a> {
         self.tok.iter()
     }
     #[inline]
-    fn position<P>(&self, predicate: P) -> Option<usize> where P: Fn(Self::RawItem) -> bool {
+    fn position<P>(&self, predicate: P) -> Option<usize>
+        where P: Fn(Self::RawItem) -> bool
+    {
         self.tok.iter().position(|b| predicate(b.clone()))
     }
     #[inline]
-    fn slice_index(&self, count:usize) -> Option<usize> {
+    fn slice_index(&self, count: usize) -> Option<usize> {
         if self.tok.len() >= count {
             Some(count)
         } else {

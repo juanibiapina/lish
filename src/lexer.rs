@@ -10,15 +10,15 @@ pub struct Lexer;
 
 impl Lexer {
     pub fn new() -> Lexer {
-	Lexer
+        Lexer
     }
 
     pub fn tokenize(&self, input: &str) -> Result<Vec<Token>> {
-	match lex_tokens(input) {
-	    IResult::Done(_, tokens) => { Ok(tokens) },
-	    IResult::Error(_) => { Err(Error::Unknown) },
-	    IResult::Incomplete(_) => { Err(Error::Unknown) },
-	}
+        match lex_tokens(input) {
+            IResult::Done(_, tokens) => Ok(tokens),
+            IResult::Error(_) => Err(Error::Unknown),
+            IResult::Incomplete(_) => Err(Error::Unknown),
+        }
     }
 }
 
@@ -55,31 +55,38 @@ mod tests {
 
     #[test]
     fn lex_word_alpha() {
-        assert_eq!(lex("ls").unwrap(), vec!(Token::Word("ls".to_string())));
+        assert_eq!(lex("ls").unwrap(), vec![Token::Word("ls".to_string())]);
     }
 
     #[test]
     fn lex_word_with_slash() {
-        assert_eq!(lex("/bin/echo").unwrap(), vec!(Token::Word("/bin/echo".to_string())));
+        assert_eq!(lex("/bin/echo").unwrap(),
+                   vec![Token::Word("/bin/echo".to_string())]);
     }
 
     #[test]
     fn lex_word_with_dash() {
-        assert_eq!(lex("-lol").unwrap(), vec!(Token::Word("-lol".to_string())));
+        assert_eq!(lex("-lol").unwrap(), vec![Token::Word("-lol".to_string())]);
     }
 
     #[test]
     fn lex_two_words_with_dash() {
-        assert_eq!(lex("ls -la").unwrap(), vec!(Token::Word("ls".to_string()), Token::Word("-la".to_string())));
+        assert_eq!(lex("ls -la").unwrap(),
+                   vec![Token::Word("ls".to_string()),
+                        Token::Word("-la".to_string())]);
     }
 
     #[test]
     fn lex_multiple_words() {
-        assert_eq!(lex("ls -l -a file").unwrap(), vec!(Token::Word("ls".to_string()), Token::Word("-l".to_string()), Token::Word("-a".to_string()), Token::Word("file".to_string())));
+        assert_eq!(lex("ls -l -a file").unwrap(),
+                   vec![Token::Word("ls".to_string()),
+                        Token::Word("-l".to_string()),
+                        Token::Word("-a".to_string()),
+                        Token::Word("file".to_string())]);
     }
 
     #[test]
     fn lex_illegal() {
-        assert_eq!(lex("^").unwrap(), vec!(Token::Illegal("^".to_string())));
+        assert_eq!(lex("^").unwrap(), vec![Token::Illegal("^".to_string())]);
     }
 }

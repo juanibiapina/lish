@@ -19,7 +19,7 @@ impl ShellExpr {
         let mut iter = words.into_iter();
         let command = iter.next().unwrap();
 
-        let mut args = vec!();
+        let mut args = vec![];
         for part in iter {
             args.push(part);
         }

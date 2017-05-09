@@ -14,7 +14,9 @@ pub struct Engine {
 fn eval(program: Program) -> Result<()> {
     match program {
         Program::ShellProgram(shell_expr) => {
-            let mut child = Command::new(&shell_expr.command.0).args(shell_expr.args.iter().map(|a| &a.0)).spawn()?;
+            let mut child = Command::new(&shell_expr.command.0)
+                .args(shell_expr.args.iter().map(|a| &a.0))
+                .spawn()?;
 
             child.wait()?;
 

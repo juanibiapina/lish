@@ -23,24 +23,22 @@ impl Repl {
     pub fn run(&mut self) {
         loop {
             match self.rep() {
-                Ok(()) => {},
-                Err(Error::Interrupted) => {},
-                Err(Error::Eof) => {
-                    break
-                },
+                Ok(()) => {}
+                Err(Error::Interrupted) => {}
+                Err(Error::Eof) => break,
                 Err(Error::IoError(e)) => {
                     println!("{}", e);
-                },
+                }
                 Err(Error::UnexpectedToken(token)) => {
                     println!("Unexpected token `{}`", token);
-                },
+                }
                 Err(Error::ParseError) => {
                     println!("Parse error");
-                },
+                }
                 Err(err) => {
                     println!("Error: {:?}", err);
-                    break
-                },
+                    break;
+                }
             }
         }
     }
