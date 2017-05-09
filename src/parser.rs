@@ -15,7 +15,13 @@ impl Parser {
 
     pub fn parse(&self, tokens: Tokens) -> Result<ast::Program> {
         match program(tokens) {
-            IResult::Done(_, o) => { Ok(o) },
+            IResult::Done(i, o) => {
+              if i.tok.len() == 0 {
+                Ok(o)
+              } else {
+                Err(Error::UnexpectedToken(i.tok[0].clone()))
+              }
+            },
             IResult::Error(_) => { Err(Error::ParseError) },
             IResult::Incomplete(_) => { Err(Error::Incomplete) },
         }
@@ -55,9 +61,14 @@ mod tests {
     use super::*;
     use lexer::Lexer;
 
-    fn assert_input_with_ast(input: &str, expected: ast::Program) {
+    fn parse(input: &str) -> Result<ast::Program> {
         let tokens = Lexer::new().tokenize(input).unwrap();
-        let program = Parser::new().parse(Tokens::new(&tokens)).unwrap();
+
+        Parser::new().parse(Tokens::new(&tokens))
+    }
+
+    fn assert_input_with_ast(input: &str, expected: ast::Program) {
+        let program = parse(input).unwrap();
 
         assert_eq!(program, expected);
     }
@@ -76,5 +87,20 @@ mod tests {
         );
 
         assert_input_with_ast(input, expected);
+    }
+
+    #[test]
+    fn parse_invalid() {
+        let input = "ls ^";
+        let err = parse(input).unwrap_err();
+
+        match err {
+          Error::UnexpectedToken(Token::Illegal(s)) => {
+            assert_eq!(s, "^".to_owned());
+          },
+          _ => {
+            assert!(false);
+          }
+        }
     }
 }

@@ -1,5 +1,6 @@
 use std::ops::{Range, RangeTo, RangeFrom, RangeFull};
 use std::iter::Enumerate;
+use std::fmt;
 
 use nom::{AsChar, Slice, InputIter, InputLength};
 
@@ -7,6 +8,19 @@ use nom::{AsChar, Slice, InputIter, InputLength};
 pub enum Token {
     Word(String),
     Illegal(String),
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Token::Word(ref s) => {
+                write!(f, "{}", s)
+            },
+            Token::Illegal(ref s) => {
+                write!(f, "{}", s)
+            },
+        }
+    }
 }
 
 // Needed for nom to work with non u8 slices: https://github.com/Geal/nom/issues/380
