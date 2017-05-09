@@ -1,3 +1,4 @@
+use nom;
 use nom::IResult;
 use nom::ErrorKind;
 
@@ -22,7 +23,22 @@ impl Parser {
                 Err(Error::UnexpectedToken(i.tok[0].clone()))
               }
             },
-            IResult::Error(_) => { Err(Error::ParseError) },
+            IResult::Error(err) => {
+              match err {
+                nom::Err::Code(_) => {
+                  Err(Error::ParseError)
+                },
+                nom::Err::Node(_, _) => {
+                  Err(Error::ParseError)
+                },
+                nom::Err::Position(_, tokens) => {
+                  Err(Error::UnexpectedToken(tokens.tok[0].clone()))
+                },
+                nom::Err::NodePosition(_, tokens, _) => {
+                  Err(Error::UnexpectedToken(tokens.tok[0].clone()))
+                },
+              }
+            },
             IResult::Incomplete(_) => { Err(Error::Incomplete) },
         }
     }
@@ -90,8 +106,23 @@ mod tests {
     }
 
     #[test]
-    fn parse_invalid() {
+    fn parse_invalid_after_valid() {
         let input = "ls ^";
+        let err = parse(input).unwrap_err();
+
+        match err {
+          Error::UnexpectedToken(Token::Illegal(s)) => {
+            assert_eq!(s, "^".to_owned());
+          },
+          _ => {
+            assert!(false);
+          }
+        }
+    }
+
+    #[test]
+    fn parse_starting_with_invalid() {
+        let input = "^";
         let err = parse(input).unwrap_err();
 
         match err {

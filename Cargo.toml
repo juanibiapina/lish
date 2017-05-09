@@ -9,5 +9,5 @@ libc = "*"
 regex = "*"
 
 [dependencies.nom]
-version = "*"
-features = ["regexp"]
+git = "https://github.com/Geal/nom.git"
+features = ["regexp", "verbose-errors"]
