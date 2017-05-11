@@ -1,28 +1,14 @@
-use std::process::Command;
-
 use token::Tokens;
-use ast::Program;
 use lexer::Lexer;
 use parser::Parser;
+use evaluator::Evaluator;
+use evaluator::EvalResult;
 use error::Result;
 
 pub struct Engine {
     lexer: Lexer,
     parser: Parser,
-}
-
-fn eval(program: Program) -> Result<()> {
-    match program {
-        Program::ShellProgram(shell_expr) => {
-            let mut child = Command::new(&shell_expr.command.0)
-                .args(shell_expr.args.iter().map(|a| &a.0))
-                .spawn()?;
-
-            child.wait()?;
-
-            Ok(())
-        }
-    }
+    evaluator: Evaluator,
 }
 
 impl Engine {
@@ -30,13 +16,17 @@ impl Engine {
         Engine {
             parser: Parser::new(),
             lexer: Lexer::new(),
+            evaluator: Evaluator::new(),
         }
     }
 
     pub fn run(&self, input: &str) -> Result<()> {
         let tokens = self.lexer.tokenize(input)?;
         let ast = self.parser.parse(Tokens::new(&tokens))?;
+        let result = self.evaluator.eval(ast)?;
 
-        eval(ast)
+        match result {
+            EvalResult::Done => Ok(()),
+        }
     }
 }

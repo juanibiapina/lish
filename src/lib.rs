@@ -8,6 +8,7 @@ mod token;
 mod ast;
 mod lexer;
 mod parser;
+mod evaluator;
 mod engine;
 
 pub mod repl;
