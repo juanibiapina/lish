@@ -8,4 +8,4 @@ non_existent_command
 ;=>No such file or directory (os error 2)
 
 |
-;=>Unexpected token `|`
+;=>Unexpected character `|`

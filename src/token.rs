@@ -7,14 +7,12 @@ use nom::{AsChar, Slice, InputIter, InputLength};
 #[derive(PartialEq, Debug, Clone)]
 pub enum Token {
     Word(String),
-    Illegal(String),
 }
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Token::Word(ref s) => write!(f, "{}", s),
-            Token::Illegal(ref s) => write!(f, "{}", s),
         }
     }
 }

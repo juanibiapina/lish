@@ -29,6 +29,9 @@ impl Repl {
                 Err(Error::IoError(e)) => {
                     println!("{}", e);
                 }
+                Err(Error::UnexpectedCharacter(c)) => {
+                    println!("Unexpected character `{}`", c);
+                }
                 Err(Error::UnexpectedToken(token)) => {
                     println!("Unexpected token `{}`", token);
                 }

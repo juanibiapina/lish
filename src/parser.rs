@@ -49,7 +49,7 @@ macro_rules! parse_word (
             } else {
                 match t1.tok[0].clone() {
                     Token::Word(name) => IResult::Done(i1, ast::Word(name)),
-                    _ => IResult::Error(error_position!(ErrorKind::Tag, $i)),
+                    //_ => IResult::Error(error_position!(ErrorKind::Tag, $i)),
                 }
             }
         }
@@ -95,35 +95,5 @@ mod tests {
                                                   });
 
         assert_input_with_ast(input, expected);
-    }
-
-    #[test]
-    fn parse_invalid_after_valid() {
-        let input = "ls ^";
-        let err = parse(input).unwrap_err();
-
-        match err {
-            Error::UnexpectedToken(Token::Illegal(s)) => {
-                assert_eq!(s, "^".to_owned());
-            }
-            _ => {
-                assert!(false);
-            }
-        }
-    }
-
-    #[test]
-    fn parse_starting_with_invalid() {
-        let input = "^";
-        let err = parse(input).unwrap_err();
-
-        match err {
-            Error::UnexpectedToken(Token::Illegal(s)) => {
-                assert_eq!(s, "^".to_owned());
-            }
-            _ => {
-                assert!(false);
-            }
-        }
     }
 }

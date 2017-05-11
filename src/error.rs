@@ -15,6 +15,7 @@ pub enum Error {
     Eof,
     ReadlineError(ReadlineError),
     IoError(io::Error),
+    UnexpectedCharacter(char),
     UnexpectedToken(Token),
     ParseError,
     Incomplete,
