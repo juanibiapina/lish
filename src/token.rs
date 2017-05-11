@@ -6,12 +6,16 @@ use nom::{AsChar, Slice, InputIter, InputLength};
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Token {
+    LParen,
+    RParen,
     Word(String),
 }
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            Token::LParen => write!(f, "("),
+            Token::RParen => write!(f, ")"),
             Token::Word(ref s) => write!(f, "{}", s),
         }
     }

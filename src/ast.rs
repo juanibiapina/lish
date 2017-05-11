@@ -2,6 +2,7 @@
 #[derive(PartialEq)]
 pub enum Program {
     ShellProgram(ShellExpr),
+    LispProgram(LispExpr),
 }
 
 #[derive(Debug)]
@@ -13,6 +14,13 @@ pub struct ShellExpr {
 
 #[derive(PartialEq, Debug, Eq, Clone)]
 pub struct Word(pub String);
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum LispExpr {
+    Symbol(String),
+    List(Vec<LispExpr>),
+}
 
 impl ShellExpr {
     pub fn from_words(words: Vec<Word>) -> ShellExpr {

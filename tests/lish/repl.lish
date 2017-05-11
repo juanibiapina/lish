@@ -9,3 +9,6 @@ non_existent_command
 
 |
 ;=>Unexpected character `|`
+
+(ls 1 2)
+;=>(ls 1 2)

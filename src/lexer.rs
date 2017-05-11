@@ -27,8 +27,18 @@ named!(lex_tokens<&str, Vec<Token>>, ws!(many0!(lex_token)));
 
 named!(lex_token<&str, Token>,
     alt_complete!(
+	lex_lparen |
+	lex_rparen |
 	lex_word
     )
+);
+
+named!(lex_lparen<&str, Token>,
+    do_parse!(tag!("(") >> (Token::LParen))
+);
+
+named!(lex_rparen<&str, Token>,
+    do_parse!(tag!(")") >> (Token::RParen))
 );
 
 named!(lex_word<&str, Token>,
@@ -76,6 +86,16 @@ mod tests {
                         Token::Word("-l".to_string()),
                         Token::Word("-a".to_string()),
                         Token::Word("file".to_string())]);
+    }
+
+    #[test]
+    fn lex_left_parenthesis() {
+        assert_eq!(lex("(").unwrap(), vec!(Token::LParen));
+    }
+
+    #[test]
+    fn lex_right_parenthesis() {
+        assert_eq!(lex(")").unwrap(), vec!(Token::RParen));
     }
 
     #[test]

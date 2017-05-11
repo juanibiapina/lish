@@ -1,14 +1,15 @@
 use token::Tokens;
 use lexer::Lexer;
 use parser::Parser;
-use evaluator::Evaluator;
-use evaluator::EvalResult;
+use evaluator::{Evaluator, EvalResult};
+use printer::Printer;
 use error::Result;
 
 pub struct Engine {
     lexer: Lexer,
     parser: Parser,
     evaluator: Evaluator,
+    printer: Printer,
 }
 
 impl Engine {
@@ -17,6 +18,7 @@ impl Engine {
             parser: Parser::new(),
             lexer: Lexer::new(),
             evaluator: Evaluator::new(),
+            printer: Printer::new(),
         }
     }
 
@@ -27,6 +29,10 @@ impl Engine {
 
         match result {
             EvalResult::Done => Ok(()),
+            EvalResult::LispExpr(lisp_expr) => {
+                println!("{}", self.printer.print(&lisp_expr));
+                Ok(())
+            }
         }
     }
 }

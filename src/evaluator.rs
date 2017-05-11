@@ -1,10 +1,12 @@
 use std::process::Command;
 
 use ast::Program;
+use ast::LispExpr;
 use error::Result;
 
 pub enum EvalResult {
     Done,
+    LispExpr(LispExpr),
 }
 
 pub struct Evaluator;
@@ -24,6 +26,9 @@ impl Evaluator {
                 child.wait()?;
 
                 Ok(EvalResult::Done)
+            }
+            Program::LispProgram(lisp_expr) => {
+                Ok(EvalResult::LispExpr(lisp_expr))
             }
         }
     }

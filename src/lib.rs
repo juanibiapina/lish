@@ -9,6 +9,7 @@ mod ast;
 mod lexer;
 mod parser;
 mod evaluator;
+mod printer;
 mod engine;
 
 pub mod repl;
