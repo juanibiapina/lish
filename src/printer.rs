@@ -32,3 +32,51 @@ impl Printer {
         res
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn print(lisp_expr: &LispExpr) -> String {
+        Printer::new().print(lisp_expr)
+    }
+
+    #[test]
+    fn print_symbol() {
+        assert_eq!(print(&LispExpr::Symbol("lol".to_owned())), "lol");
+    }
+
+    #[test]
+    fn print_list() {
+        assert_eq!(
+            print(
+                &LispExpr::List(
+                    vec![
+                        LispExpr::Symbol("lol".to_owned()),
+                        LispExpr::Symbol("lol2".to_owned())
+                    ]
+                )
+            ),
+            "(lol lol2)"
+        );
+    }
+
+    #[test]
+    fn print_nested_list() {
+        assert_eq!(
+            print(
+                &LispExpr::List(
+                    vec![
+                        LispExpr::List(
+                            vec![
+                                LispExpr::Symbol("lol".to_owned())
+                            ]
+                        ),
+                        LispExpr::Symbol("lol2".to_owned())
+                    ]
+                )
+            ),
+            "((lol) lol2)"
+        );
+    }
+}
