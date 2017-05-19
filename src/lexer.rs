@@ -9,7 +9,7 @@ named!(pub lex_rparen<&str, &str>,
 );
 
 named!(pub lex_word<&str, &str>,
-    re_find!(r"^(?:[[:word:]]|/|-)+")
+    re_find!(r"^(?:[[:word:]]|/|-|\+|\*|%|=)+")
 );
 
 #[cfg(test)]
@@ -29,6 +29,11 @@ mod tests {
     #[test]
     fn lex_word_with_dash() {
         assert_eq!(lex_word("-lol more").unwrap(), (" more", "-lol"));
+    }
+
+    #[test]
+    fn lex_word_with_math_symbols() {
+        assert_eq!(lex_word("+=-*% more").unwrap(), (" more", "+=-*%"));
     }
 
     #[test]
