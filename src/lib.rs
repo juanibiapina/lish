@@ -4,7 +4,6 @@ extern crate regex;
 
 mod error;
 mod readliner;
-mod token;
 mod ast;
 mod lexer;
 mod parser;

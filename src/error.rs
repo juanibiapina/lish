@@ -5,8 +5,6 @@ use std::io;
 
 use self::rustyline::error::ReadlineError;
 
-use token::Token;
-
 pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug)]
@@ -16,10 +14,8 @@ pub enum Error {
     ReadlineError(ReadlineError),
     IoError(io::Error),
     UnexpectedCharacter(char),
-    UnexpectedToken(Token),
     ParseError,
     Incomplete,
-    Unknown,
 }
 
 impl From<ReadlineError> for Error {

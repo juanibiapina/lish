@@ -1,9 +1,7 @@
 use nom;
 use nom::IResult;
-use nom::ErrorKind;
-use nom::Needed;
 
-use token::{Token, Tokens};
+use lexer::{lex_word, lex_lparen, lex_rparen};
 use error::Result;
 use error::Error;
 use ast;
@@ -15,24 +13,23 @@ impl Parser {
         Parser
     }
 
-    pub fn parse(&self, tokens: Tokens) -> Result<ast::Program> {
-        match program(tokens) {
-            IResult::Done(i, o) => {
-                if i.tok.len() == 0 {
-                    Ok(o)
-                } else {
-                    Err(Error::UnexpectedToken(i.tok[0].clone()))
-                }
+    pub fn parse(&self, input: &str) -> Result<ast::Program> {
+        match program(input) {
+            IResult::Done("", o) => {
+                Ok(o)
+            }
+            IResult::Done(i, _) => {
+                Err(Error::UnexpectedCharacter(i.chars().next().unwrap()))
             }
             IResult::Error(err) => {
                 match err {
                     nom::Err::Code(_) => Err(Error::ParseError),
                     nom::Err::Node(_, _) => Err(Error::ParseError),
-                    nom::Err::Position(_, tokens) => {
-                        Err(Error::UnexpectedToken(tokens.tok[0].clone()))
+                    nom::Err::Position(_, rest) => {
+                        Err(Error::UnexpectedCharacter(rest.chars().next().unwrap()))
                     }
-                    nom::Err::NodePosition(_, tokens, _) => {
-                        Err(Error::UnexpectedToken(tokens.tok[0].clone()))
+                    nom::Err::NodePosition(_, rest, _) => {
+                        Err(Error::UnexpectedCharacter(rest.chars().next().unwrap()))
                     }
                 }
             }
@@ -41,93 +38,61 @@ impl Parser {
     }
 }
 
-macro_rules! tag_token (
-  ($i: expr, $tag: expr) => (
-    {
-        let (i1, t1) = try_parse!($i, take!(1));
-        if t1.tok.len() == 0 {
-            IResult::Incomplete::<_,_>(Needed::Size(1))
-        } else {
-            if t1.tok[0] == $tag {
-                IResult::Done(i1, t1)
-            } else {
-                IResult::Error(error_position!(ErrorKind::Tag, $i))
-            }
-        }
-    }
-  );
-);
-
-macro_rules! parse_word (
-    ($i: expr,) => (
-        {
-            let (i1, t1) = try_parse!($i, take!(1));
-            if t1.tok.len() == 0 {
-                IResult::Error(error_position!(ErrorKind::Tag, $i))
-            } else {
-                match t1.tok[0].clone() {
-                    Token::Word(name) => IResult::Done(i1, ast::Word(name)),
-                    _ => IResult::Error(error_position!(ErrorKind::Tag, $i)),
-                }
-            }
-        }
-  );
-);
-
-named!(program<Tokens, ast::Program>,
+named!(program<&str, ast::Program>,
     alt!(
         shell_expr => { |v| ast::Program::ShellProgram(v) } |
         lisp_expr => { |v| ast::Program::LispProgram(v) }
     )
 );
 
-named!(word<Tokens, ast::Word>, parse_word!() );
-
-named!(shell_expr<Tokens, ast::ShellExpr>,
-    map!(many1!(word), ast::ShellExpr::from_words)
+named!(shell_expr<&str, ast::ShellExpr>,
+    map!(ws!(many1!(word)), ast::ShellExpr::from_words)
 );
 
-named!(lisp_expr<Tokens, ast::LispExpr>,
+named!(lisp_expr<&str, ast::LispExpr>,
     alt!(
         lisp_list |
         lisp_atom
     )
 );
 
-named!(lisp_list<Tokens, ast::LispExpr>,
+named!(word<&str, ast::Word>,
     do_parse!(
-        exprs: delimited!(
-                   tag_token!(Token::LParen),
-                   many0!(lisp_expr),
-                   tag_token!(Token::RParen)
-               ) >>
+        w: lex_word >>
+        (ast::Word(w.to_owned()))
+    )
+);
+
+named!(lisp_list<&str, ast::LispExpr>,
+    do_parse!(
+        exprs: ws!(delimited!(
+                       lex_lparen,
+                       many0!(lisp_expr),
+                       lex_rparen
+                  )) >>
         (ast::LispExpr::List(exprs))
     )
 );
 
-named!(lisp_atom<Tokens, ast::LispExpr>,
+named!(lisp_atom<&str, ast::LispExpr>,
     alt!(
         symbol
     )
 );
 
-named!(symbol<Tokens, ast::LispExpr>,
+named!(symbol<&str, ast::LispExpr>,
     do_parse!(
-        w: parse_word!() >>
-        (ast::LispExpr::Symbol(w.0))
+        w: lex_word >>
+        (ast::LispExpr::Symbol(w.to_owned()))
     )
 );
 
 #[cfg(test)]
 mod tests {
-    use ast::LispExpr;
     use super::*;
-    use lexer::Lexer;
 
     fn parse(input: &str) -> Result<ast::Program> {
-        let tokens = Lexer::new().tokenize(input).unwrap();
-
-        Parser::new().parse(Tokens::new(&tokens))
+        Parser::new().parse(input)
     }
 
     fn assert_input_with_ast(input: &str, expected: ast::Program) {
@@ -152,8 +117,8 @@ mod tests {
     fn parse_simple_lisp_expression() {
         let input = "(ls a b)";
         let expected = ast::Program::LispProgram(
-            LispExpr::List(
-              vec!(LispExpr::Symbol("ls".to_owned()), LispExpr::Symbol("a".to_owned()), LispExpr::Symbol("b".to_owned()))
+            ast::LispExpr::List(
+              vec!(ast::LispExpr::Symbol("ls".to_owned()), ast::LispExpr::Symbol("a".to_owned()), ast::LispExpr::Symbol("b".to_owned()))
             )
         );
 

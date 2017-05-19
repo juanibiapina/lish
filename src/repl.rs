@@ -32,9 +32,6 @@ impl Repl {
                 Err(Error::UnexpectedCharacter(c)) => {
                     println!("Unexpected character `{}`", c);
                 }
-                Err(Error::UnexpectedToken(token)) => {
-                    println!("Unexpected token `{}`", token);
-                }
                 Err(Error::ParseError) => {
                     println!("Parse error");
                 }
