@@ -23,12 +23,12 @@ impl Parser {
                     nom::Err::Node(_, _) => Err(Error::ParseError),
                     nom::Err::Position(_, rest) => {
                         Err(Error::UnexpectedCharacter(rest.chars().next().unwrap()))
-                    }
+                    },
                     nom::Err::NodePosition(_, rest, _) => {
                         Err(Error::UnexpectedCharacter(rest.chars().next().unwrap()))
-                    }
+                    },
                 }
-            }
+            },
             IResult::Incomplete(_) => Err(Error::Incomplete),
         }
     }
@@ -102,10 +102,10 @@ mod tests {
     fn parse_shell_expr() {
         let input = "ls -la file";
         let expected = Program::ShellProgram(ShellExpr {
-                                                 command: Word("ls".to_string()),
-                                                 args: vec![Word("-la".to_string()),
-                                                            Word("file".to_string())],
-                                             });
+            command: Word("ls".to_string()),
+            args: vec![Word("-la".to_string()),
+            Word("file".to_string())],
+        });
 
         assert_input_with_ast(input, expected);
     }
@@ -113,9 +113,15 @@ mod tests {
     #[test]
     fn parse_simple_lisp_expression() {
         let input = "(ls a b)";
-        let expected = Program::LispProgram(LispExpr::List(vec![LispExpr::Symbol("ls".to_owned()),
-                                                     LispExpr::Symbol("a".to_owned()),
-                                                     LispExpr::Symbol("b".to_owned())]));
+        let expected = Program::LispProgram(
+            LispExpr::List(
+                vec![
+                    LispExpr::Symbol("ls".to_owned()),
+                    LispExpr::Symbol("a".to_owned()),
+                    LispExpr::Symbol("b".to_owned())
+                ]
+            )
+        );
 
         assert_input_with_ast(input, expected);
     }
@@ -123,11 +129,19 @@ mod tests {
     #[test]
     fn parse_nested_lisp_expression() {
         let input = "((ls a) b)";
-        let expected = Program::LispProgram(LispExpr::List(vec![LispExpr::List(vec![
-                        LispExpr::Symbol("ls".to_owned()),
-                        LispExpr::Symbol("a".to_owned())
-                    ]),
-                                                     LispExpr::Symbol("b".to_owned())]));
+        let expected = Program::LispProgram(
+            LispExpr::List(
+                vec![
+                    LispExpr::List(
+                        vec![
+                            LispExpr::Symbol("ls".to_owned()),
+                            LispExpr::Symbol("a".to_owned())
+                        ]
+                    ),
+                    LispExpr::Symbol("b".to_owned())
+                ]
+            )
+        );
 
         assert_input_with_ast(input, expected);
     }
