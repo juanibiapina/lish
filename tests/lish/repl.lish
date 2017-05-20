@@ -15,3 +15,6 @@ non_existent_command
 
 (ls
 ;=>Incomplete input
+
+((ls a) b)
+;=>((ls a) b)

@@ -124,4 +124,22 @@ mod tests {
 
         assert_input_with_ast(input, expected);
     }
+
+    #[test]
+    fn parse_nested_lisp_expression() {
+        let input = "((ls a) b)";
+        let expected = ast::Program::LispProgram(
+            ast::LispExpr::List(
+                vec!(
+                    ast::LispExpr::List(vec![
+                        ast::LispExpr::Symbol("ls".to_owned()),
+                        ast::LispExpr::Symbol("a".to_owned())
+                    ]),
+                    ast::LispExpr::Symbol("b".to_owned())
+                )
+            )
+        );
+
+        assert_input_with_ast(input, expected);
+    }
 }
