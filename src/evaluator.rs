@@ -27,9 +27,7 @@ impl Evaluator {
 
                 Ok(EvalResult::Done)
             }
-            Program::LispProgram(lisp_expr) => {
-                Ok(EvalResult::LispExpr(lisp_expr))
-            }
+            Program::LispProgram(lisp_expr) => Ok(EvalResult::LispExpr(lisp_expr)),
         }
     }
 }
