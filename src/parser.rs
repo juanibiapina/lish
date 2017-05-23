@@ -1,95 +1,190 @@
-use nom;
-use nom::IResult;
+use std::collections::VecDeque;
 
-use lexer::{lex_word, lex_lparen, lex_rparen};
+use token::Token;
 use error::Result;
 use error::Error;
 use ast;
 
-pub struct Parser;
+pub struct Parser {
+    tokens: VecDeque<Token>,
+}
 
 impl Parser {
     pub fn new() -> Parser {
-        Parser
+        Parser {
+            tokens: VecDeque::new(),
+        }
     }
 
-    pub fn parse(&self, input: &str) -> Result<ast::Program> {
-        match program(input) {
-            IResult::Done("", o) => Ok(o),
-            IResult::Done(i, _) => Err(Error::UnexpectedCharacter(i.chars().next().unwrap())),
-            IResult::Error(err) => {
-                match err {
-                    nom::Err::Code(_) => Err(Error::ParseError),
-                    nom::Err::Node(_, _) => Err(Error::ParseError),
-                    nom::Err::Position(_, rest) => {
-                        Err(Error::UnexpectedCharacter(rest.chars().next().unwrap()))
-                    },
-                    nom::Err::NodePosition(_, rest, _) => {
-                        Err(Error::UnexpectedCharacter(rest.chars().next().unwrap()))
-                    },
+    pub fn add_tokens(&mut self, tokens: Vec<Token>) {
+        self.tokens.extend(tokens);
+    }
+
+    pub fn parse(&mut self) -> Result<ast::Program> {
+        self.read_program()
+    }
+
+    fn next(&mut self) -> Option<Token> {
+        self.tokens.pop_front()
+    }
+
+    fn peek(&self) -> Option<Token> {
+        self.tokens.front().cloned()
+    }
+
+    fn read_program(&mut self) -> Result<ast::Program> {
+        let token = self.peek();
+
+        match token {
+            Some(token) => {
+                match token {
+                    Token::LParen => {
+                        Ok(ast::Program::LispProgram(self.read_lisp()?))
+                    }
+                    _ => {
+                        Ok(ast::Program::ShellProgram(self.read_shell()?))
+                    }
                 }
             },
-            IResult::Incomplete(_) => Err(Error::Incomplete),
+            None => {
+                Err(Error::ParseError)
+            }
+        }
+    }
+
+    fn read_lisp(&mut self) -> Result<ast::LispExpr> {
+        let token = self.peek();
+
+        match token {
+            Some(token) => {
+                match token {
+                    Token::LParen => {
+                        Ok(self.read_list()?)
+                    }
+                    _ => {
+                        Ok(self.read_atom()?)
+                    }
+                }
+            },
+            None => {
+                Err(Error::ParseError)
+            }
+        }
+    }
+
+    fn read_list(&mut self) -> Result<ast::LispExpr> {
+        let token = self.next();
+
+        match token {
+            Some(token) => {
+                match token {
+                    Token::LParen => { }
+                    _ => {
+                        return Err(Error::ParseError);
+                    }
+                }
+            },
+            None => {
+                return Err(Error::ParseError);
+            }
+        }
+
+        let mut forms = vec![];
+
+        loop {
+            let token = self.peek();
+
+            match token {
+                Some(token) => {
+                    match token {
+                        Token::RParen => {
+                            break;
+                        }
+                        _ => {
+                            forms.push(self.read_lisp()?);
+                        }
+                    }
+                }
+                None => {
+                    return Err(Error::ParseError);
+                }
+            }
+        }
+
+        self.next();
+
+        Ok(ast::LispExpr::List(forms))
+    }
+
+    fn read_atom(&mut self) -> Result<ast::LispExpr> {
+        let token = self.next();
+
+        match token {
+            Some(Token::Ident(token)) => {
+                Ok(ast::LispExpr::Symbol(token))
+            },
+            Some(_) => {
+                Err(Error::ParseError)
+            },
+            None => {
+                Err(Error::ParseError)
+            }
+        }
+
+    }
+
+    fn read_shell(&mut self) -> Result<ast::ShellExpr> {
+        let command = self.read_ident()?;
+
+        let mut args = vec![];
+
+        while let Some(token) = self.next() {
+            match token {
+                Token::Ident(token) => {
+                    args.push(token);
+                },
+                _ => {
+                    return Err(Error::ParseError);
+                }
+            }
+        }
+
+        Ok(ast::ShellExpr {
+            command: command,
+            args: args,
+        })
+    }
+
+    fn read_ident(&mut self) -> Result<String> {
+        let token = self.next();
+
+        match token {
+            Some(Token::Ident(token)) => {
+                Ok(token)
+            },
+            Some(_) => {
+                Err(Error::ParseError)
+            },
+            None => {
+                Err(Error::ParseError)
+            }
         }
     }
 }
-
-named!(program<&str, ast::Program>,
-    alt!(
-        shell_expr => { |v| ast::Program::ShellProgram(v) } |
-        lisp_expr => { |v| ast::Program::LispProgram(v) }
-    )
-);
-
-named!(shell_expr<&str, ast::ShellExpr>,
-    map!(ws!(many1!(word)), ast::ShellExpr::from_words)
-);
-
-named!(lisp_expr<&str, ast::LispExpr>,
-    alt!(
-        lisp_list |
-        lisp_atom
-    )
-);
-
-named!(word<&str, ast::Word>,
-    do_parse!(
-        w: lex_word >>
-        (ast::Word(w.to_owned()))
-    )
-);
-
-named!(lisp_list<&str, ast::LispExpr>,
-    do_parse!(
-        exprs: ws!(delimited!(
-                       lex_lparen,
-                       many0!(lisp_expr),
-                       lex_rparen
-                  )) >>
-        (ast::LispExpr::List(exprs))
-    )
-);
-
-named!(lisp_atom<&str, ast::LispExpr>,
-    alt!(
-        symbol
-    )
-);
-
-named!(symbol<&str, ast::LispExpr>,
-    do_parse!(
-        w: lex_word >>
-        (ast::LispExpr::Symbol(w.to_owned()))
-    )
-);
 
 #[cfg(test)]
 mod tests {
     use ast::*;
     use super::*;
+    use lexer::Lexer;
 
     fn parse(input: &str) -> Result<Program> {
-        Parser::new().parse(input)
+        let tokens = Lexer::new().tokenize(input).unwrap();
+
+        let mut parser = Parser::new();
+        parser.add_tokens(tokens);
+
+        parser.parse()
     }
 
     fn assert_input_with_ast(input: &str, expected: Program) {
@@ -102,9 +197,11 @@ mod tests {
     fn parse_shell_expr() {
         let input = "ls -la file";
         let expected = Program::ShellProgram(ShellExpr {
-            command: Word("ls".to_string()),
-            args: vec![Word("-la".to_string()),
-            Word("file".to_string())],
+            command: "ls".to_owned(),
+            args: vec![
+                "-la".to_owned(),
+                "file".to_owned()
+            ],
         });
 
         assert_input_with_ast(input, expected);

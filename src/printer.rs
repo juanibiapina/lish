@@ -48,17 +48,35 @@ mod tests {
 
     #[test]
     fn print_list() {
-        assert_eq!(print(&LispExpr::List(vec![LispExpr::Symbol("lol".to_owned()),
-                                              LispExpr::Symbol("lol2".to_owned())])),
-                   "(lol lol2)");
+        assert_eq!(
+            print(
+                &LispExpr::List(
+                    vec![
+                        LispExpr::Symbol("lol".to_owned()),
+                        LispExpr::Symbol("lol2".to_owned())
+                    ]
+                )
+            ),
+            "(lol lol2)"
+        );
     }
 
     #[test]
     fn print_nested_list() {
-        assert_eq!(print(&LispExpr::List(vec![LispExpr::List(vec![
+        assert_eq!(
+            print(
+                &LispExpr::List(
+                    vec![
+                        LispExpr::List(
+                            vec![
                                 LispExpr::Symbol("lol".to_owned())
-                            ]),
-                                              LispExpr::Symbol("lol2".to_owned())])),
-                   "((lol) lol2)");
+                            ]
+                        ),
+                        LispExpr::Symbol("lol2".to_owned())
+                    ]
+                )
+            ),
+            "((lol) lol2)"
+        );
     }
 }

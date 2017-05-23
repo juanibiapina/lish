@@ -35,9 +35,6 @@ impl Repl {
                 Err(Error::ParseError) => {
                     println!("Parse error");
                 }
-                Err(Error::Incomplete) => {
-                    println!("Incomplete input");
-                }
                 Err(err) => {
                     println!("Error: {:?}", err);
                     break;

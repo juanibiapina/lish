@@ -19,15 +19,17 @@ impl Evaluator {
     pub fn eval(&self, program: Program) -> Result<EvalResult> {
         match program {
             Program::ShellProgram(shell_expr) => {
-                let mut child = Command::new(&shell_expr.command.0)
-                    .args(shell_expr.args.iter().map(|a| &a.0))
+                let mut child = Command::new(&shell_expr.command)
+                    .args(&shell_expr.args)
                     .spawn()?;
 
                 child.wait()?;
 
                 Ok(EvalResult::Done)
             }
-            Program::LispProgram(lisp_expr) => Ok(EvalResult::LispExpr(lisp_expr)),
+            Program::LispProgram(lisp_expr) => {
+                Ok(EvalResult::LispExpr(lisp_expr))
+            }
         }
     }
 }

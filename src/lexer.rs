@@ -1,48 +1,117 @@
 use std::str;
 
-named!(pub lex_lparen<&str, &str>,
-    tag!("(")
+use nom::IResult;
+
+use token::Token;
+use error::Result;
+use error::Error;
+
+pub struct Lexer;
+
+impl Lexer {
+    pub fn new() -> Lexer {
+        Lexer
+    }
+
+    pub fn tokenize(&self, input: &str) -> Result<Vec<Token>> {
+        match lex_tokens(input) {
+            IResult::Done("", tokens) => Ok(tokens),
+            IResult::Done(i, _) => Err(Error::UnexpectedCharacter(i.chars().nth(0).unwrap())),
+            IResult::Error(_) => Err(Error::Unknown),
+            IResult::Incomplete(_) => Err(Error::Unknown),
+        }
+    }
+}
+
+named!(lex_tokens<&str, Vec<Token>>, ws!(many0!(lex_token)));
+
+named!(lex_token<&str, Token>,
+    alt_complete!(
+	lex_lparen |
+	lex_rparen |
+	lex_ident
+    )
 );
 
-named!(pub lex_rparen<&str, &str>,
-    tag!(")")
+named!(lex_lparen<&str, Token>,
+    do_parse!(tag!("(") >> (Token::LParen))
 );
 
-named!(pub lex_word<&str, &str>,
-    re_find!(r"^(?:[[:word:]]|/|-|\+|\*|%|=)+")
+named!(lex_rparen<&str, Token>,
+    do_parse!(tag!(")") >> (Token::RParen))
+);
+
+named!(lex_ident<&str, Token>,
+    do_parse!(
+	w: re_find!(r"^(?:[[:word:]]|/|-|\+|\*|%|=)+") >>
+	(Token::Ident(w.to_owned()))
+    )
 );
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn lex_word_alpha() {
-        assert_eq!(lex_word("ls more").unwrap(), (" more", "ls"));
+    fn lex(input: &str) -> Result<Vec<Token>> {
+        Lexer::new().tokenize(input)
     }
 
     #[test]
-    fn lex_word_with_slash() {
-        assert_eq!(lex_word("/bin/echo more").unwrap(), (" more", "/bin/echo"));
+    fn lex_ident_alpha() {
+        assert_eq!(lex("ls").unwrap(), vec![Token::Ident("ls".to_owned())]);
     }
 
     #[test]
-    fn lex_word_with_dash() {
-        assert_eq!(lex_word("-lol more").unwrap(), (" more", "-lol"));
+    fn lex_ident_with_slash() {
+        assert_eq!(lex("/bin/echo").unwrap(),
+                   vec![Token::Ident("/bin/echo".to_owned())]);
     }
 
     #[test]
-    fn lex_word_with_math_symbols() {
-        assert_eq!(lex_word("+=-*% more").unwrap(), (" more", "+=-*%"));
+    fn lex_ident_with_dash() {
+        assert_eq!(lex("-lol").unwrap(), vec![Token::Ident("-lol".to_owned())]);
+    }
+
+    #[test]
+    fn lex_two_idents_with_dash() {
+        assert_eq!(lex("ls -la").unwrap(),
+                   vec![Token::Ident("ls".to_owned()),
+                        Token::Ident("-la".to_owned())]);
+    }
+
+    #[test]
+    fn lex_multiple_idents() {
+        assert_eq!(lex("ls -l -a file").unwrap(),
+                   vec![Token::Ident("ls".to_owned()),
+                        Token::Ident("-l".to_owned()),
+                        Token::Ident("-a".to_owned()),
+                        Token::Ident("file".to_owned())]);
+    }
+
+    #[test]
+    fn lex_ident_with_math_symbols() {
+        assert_eq!(lex("+=-*%").unwrap(), vec![Token::Ident("+=-*%".to_owned())]);
     }
 
     #[test]
     fn lex_left_parenthesis() {
-        assert_eq!(lex_lparen("(a").unwrap(), ("a", "("));
+        assert_eq!(lex("(").unwrap(), vec!(Token::LParen));
     }
 
     #[test]
     fn lex_right_parenthesis() {
-        assert_eq!(lex_rparen(")f").unwrap(), ("f", ")"));
+        assert_eq!(lex(")").unwrap(), vec!(Token::RParen));
+    }
+
+    #[test]
+    fn lex_illegal() {
+        match lex("^").unwrap_err() {
+            Error::UnexpectedCharacter(c) => {
+                assert_eq!(c, '^');
+            }
+            _ => {
+                assert!(false);
+            }
+        }
     }
 }
