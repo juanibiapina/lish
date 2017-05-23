@@ -18,6 +18,7 @@ pub struct ShellExpr {
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum LispExpr {
+    Integer(i64),
     Symbol(String),
     List(Vec<LispExpr>),
 }

@@ -9,6 +9,7 @@ impl Printer {
 
     pub fn print(&self, lisp_expr: &LispExpr) -> String {
         match *lisp_expr {
+            LispExpr::Integer(i) => i.to_string(),
             LispExpr::Symbol(ref s) => s.clone(),
             LispExpr::List(ref exprs) => self.print_list(exprs),
         }

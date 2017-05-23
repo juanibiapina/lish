@@ -1,9 +1,15 @@
+extern crate regex;
+
 use std::collections::VecDeque;
 
 use token::Token;
 use error::Result;
 use error::Error;
 use ast;
+
+lazy_static! {
+    static ref INTEGER_REGEX: regex::Regex = regex::Regex::new(r"^-?[0-9]+$").unwrap();
+}
 
 pub struct Parser {
     tokens: VecDeque<Token>,
@@ -121,7 +127,12 @@ impl Parser {
 
         match token {
             Some(Token::Ident(token)) => {
-                Ok(ast::LispExpr::Symbol(token))
+                if INTEGER_REGEX.is_match(&token) {
+                    let value: i64 = token.parse().unwrap();
+                    Ok(ast::LispExpr::Integer(value))
+                } else {
+                    Ok(ast::LispExpr::Symbol(token))
+                }
             },
             Some(_) => {
                 Err(Error::ParseError)
@@ -225,14 +236,14 @@ mod tests {
 
     #[test]
     fn parse_nested_lisp_expression() {
-        let input = "((ls a) b)";
+        let input = "((ls -42) b)";
         let expected = Program::LispProgram(
             LispExpr::List(
                 vec![
                     LispExpr::List(
                         vec![
                             LispExpr::Symbol("ls".to_owned()),
-                            LispExpr::Symbol("a".to_owned())
+                            LispExpr::Integer(-42)
                         ]
                     ),
                     LispExpr::Symbol("b".to_owned())
