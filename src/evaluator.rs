@@ -2,8 +2,22 @@ use std::process::Command;
 use std::io::ErrorKind;
 
 use types::{self, Program, LispType, LispValue};
-use env::{Env, env_get};
+use env::{Env, env_get, env_set};
 use error::{Error, Result};
+
+enum FormType {
+    Def,
+    Function,
+}
+
+impl FormType {
+    pub fn from(name: &str) -> FormType {
+        match name {
+            "def" => FormType::Def,
+            _ => FormType::Function,
+        }
+    }
+}
 
 pub struct Evaluator;
 
@@ -45,27 +59,66 @@ impl Evaluator {
     fn eval_lisp_expr(&self, lisp_expr: LispValue, env: Env) -> Result<LispValue> {
         match *lisp_expr {
             LispType::List(ref exprs) => {
-                let exprs = self.eval_list(exprs, env)?;
-                match exprs.as_slice() {
-                    &[] => {
-                        Ok(lisp_expr.clone())
-                    }
-                    &[ref head, ref tail..] => {
-                        self.apply(head.clone(), tail.clone())
-                    }
-                }
+                self.apply(exprs.as_slice(), env)
             }
             _ => Ok(self.eval_ast(lisp_expr.clone(), env)?),
         }
     }
 
-    fn apply(&self, f: LispValue, args: &[LispValue]) -> Result<LispValue> {
-        match *f.clone() {
-            LispType::NativeFunction(ref data) => {
-                (data.body)(args)
+    fn apply(&self, list: &[LispValue], env: Env) -> Result<LispValue> {
+        match list {
+            &[] => {
+                Ok(types::list(vec![]))
             }
-            _ => {
+            &[ref head, ref tail..] => {
+                let form_type = match *head.clone() {
+                    LispType::Symbol(ref name) => {
+                        FormType::from(name)
+                    }
+                    _ => {
+                        return Err(Error::ApplyNonFunction);
+                    }
+                };
+
+                match form_type {
+                    FormType::Def => self.eval_def(tail, env),
+                    FormType::Function => self.eval_function(list, env),
+                }
+            }
+        }
+    }
+
+    fn eval_def(&self, args: &[LispValue], env: Env) -> Result<LispValue> {
+        let a1 = args[0].clone();
+        let a2 = args[1].clone();
+        match *a1 {
+            LispType::Symbol(ref name) => {
+                let value = self.eval_lisp_expr(a2, env.clone())?;
+                env_set(&env, name, value);
+
+                Ok(types::nil())
+            },
+            _ => panic!("def! of non-symbol"),
+        }
+    }
+
+    fn eval_function(&self, list: &[LispValue], env: Env) -> Result<LispValue> {
+        match list {
+            &[] => {
                 Err(Error::ApplyNonFunction)
+            }
+            &[ref head, ref tail..] => {
+                let evaluated_head = self.eval_lisp_expr(head.clone(), env.clone())?;
+                match *evaluated_head {
+                    LispType::NativeFunction(ref data) => {
+                        let evaluated_tail = self.eval_list(tail, env)?;
+
+                        (data.body)(&evaluated_tail)
+                    }
+                    _ => {
+                        Err(Error::ApplyNonFunction)
+                    }
+                }
             }
         }
     }
@@ -156,5 +209,23 @@ mod tests {
                 ), env).unwrap().unwrap(),
             types::integer(5)
         );
+    }
+
+    #[test]
+    fn eval_def() {
+        let env = env_new();
+
+        eval(
+            types::list(
+                vec![
+                    types::symbol("def".to_owned()),
+                    types::symbol("a".to_owned()),
+                    types::integer(1),
+                ]
+            ),
+            env.clone()
+        ).unwrap().unwrap();
+
+        assert_eq!(env_get(&env, "a").unwrap(), types::integer(1));
     }
 }

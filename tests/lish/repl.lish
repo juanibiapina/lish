@@ -21,3 +21,9 @@ non_existent_command
 
 (+ (- 4 2) 3)
 ;=>5
+
+(def n1 1)
+;=>nil
+
+(+ n1 1)
+;=>2
