@@ -133,6 +133,8 @@ impl Parser {
                 if INTEGER_REGEX.is_match(&token) {
                     let value: i64 = token.parse().unwrap();
                     Ok(types::integer(value))
+                } else if token == "nil" {
+                    Ok(types::nil())
                 } else {
                     Ok(types::symbol(token))
                 }
@@ -217,6 +219,20 @@ mod tests {
                 "file".to_owned()
             ],
         });
+
+        assert_input_with_ast(input, expected);
+    }
+
+    #[test]
+    fn parse_nil() {
+        let input = "(nil)";
+        let expected = Program::LispProgram(
+            types::list(
+                vec![
+                    types::nil(),
+                ]
+            )
+        );
 
         assert_input_with_ast(input, expected);
     }

@@ -9,6 +9,7 @@ impl Printer {
 
     pub fn print(&self, lisp_expr: &LispValue) -> String {
         match **lisp_expr {
+            LispType::Nil => "nil".to_owned(),
             LispType::Integer(i) => i.to_string(),
             LispType::Symbol(ref s) => s.clone(),
             LispType::NativeFunction(_) => "#<native-function ...>".to_owned(),
@@ -47,6 +48,11 @@ mod tests {
 
     fn print(lisp_expr: &LispValue) -> String {
         Printer::new().print(lisp_expr)
+    }
+
+    #[test]
+    fn print_nil() {
+        assert_eq!(print(&types::nil()), "nil");
     }
 
     #[test]

@@ -18,6 +18,7 @@ pub struct ShellExpr {
 
 #[derive(PartialEq, Debug)]
 pub enum LispType {
+    Nil,
     Integer(i64),
     Symbol(String),
     NativeFunction(NativeFunctionType),
@@ -43,6 +44,10 @@ impl Debug for NativeFunctionType {
 }
 
 // Constructors
+
+pub fn nil() -> LispValue {
+    Rc::new(LispType::Nil)
+}
 
 pub fn list(seq: Vec<LispValue>) -> LispValue {
     Rc::new(LispType::List(seq))
