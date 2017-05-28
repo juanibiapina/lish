@@ -1,4 +1,5 @@
 use std::process::Command;
+use std::io::ErrorKind;
 
 use types::{self, Program, LispType, LispValue};
 use env::{Env, env_get};
@@ -14,9 +15,22 @@ impl Evaluator {
     pub fn eval(&self, program: Program, env: Env) -> Result<Option<LispValue>> {
         match program {
             Program::ShellProgram(shell_expr) => {
-                let mut child = Command::new(&shell_expr.command)
-                    .args(&shell_expr.args)
-                    .spawn()?;
+                let mut command = Command::new(&shell_expr.command);
+                command.args(&shell_expr.args);
+
+                let mut child = match command.spawn() {
+                    Ok(result) => result,
+                    Err(err) => {
+                        match err.kind() {
+                            ErrorKind::NotFound => {
+                                return Err(Error::CommandNotFound(shell_expr.command.to_owned()));
+                            }
+                            _ => {
+                                return Err(Error::IoError(err));
+                            }
+                        }
+                    }
+                };
 
                 child.wait()?;
 

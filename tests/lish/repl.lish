@@ -5,7 +5,7 @@
 ;=>text
 
 non_existent_command
-;=>No such file or directory (os error 2)
+;=>Command not found: non_existent_command
 
 |
 ;=>Unexpected character `|`

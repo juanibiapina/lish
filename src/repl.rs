@@ -38,6 +38,9 @@ impl Repl {
                 Err(Error::ParseError) => {
                     println!("Parse error");
                 }
+                Err(Error::CommandNotFound(command)) => {
+                    println!("Command not found: {}", command);
+                }
                 Err(Error::UndefinedBinding(name)) => {
                     println!("Undefined binding: {}", name);
                 }
