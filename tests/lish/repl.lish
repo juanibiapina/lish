@@ -10,11 +10,14 @@ non_existent_command
 |
 ;=>Unexpected character `|`
 
-(ls 1 2)
-;=>(ls 1 2)
-
 (ls
 ;=>Parse error
 
-((ls a) b)
-;=>((ls a) b)
+(undefinedthing 1 2)
+;=>Undefined binding: undefinedthing
+
+(+ 1 2)
+;=>3
+
+(+ (- 4 2) 3)
+;=>5

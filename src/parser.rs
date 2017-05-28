@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 use token::Token;
 use error::Result;
 use error::Error;
-use ast;
+use types;
 
 lazy_static! {
     static ref INTEGER_REGEX: regex::Regex = regex::Regex::new(r"^-?[0-9]+$").unwrap();
@@ -26,7 +26,7 @@ impl Parser {
         self.tokens.extend(tokens);
     }
 
-    pub fn parse(&mut self) -> Result<ast::Program> {
+    pub fn parse(&mut self) -> Result<types::Program> {
         self.read_program()
     }
 
@@ -38,17 +38,34 @@ impl Parser {
         self.tokens.front().cloned()
     }
 
-    fn read_program(&mut self) -> Result<ast::Program> {
+    fn expect(&mut self, expected: Token) -> Result<()> {
+        let token = self.next();
+
+        match token {
+            Some(token) => {
+                if token == expected {
+                    Ok(())
+                } else {
+                    Err(Error::ParseError)
+                }
+            },
+            None => {
+                Err(Error::ParseError)
+            }
+        }
+    }
+
+    fn read_program(&mut self) -> Result<types::Program> {
         let token = self.peek();
 
         match token {
             Some(token) => {
                 match token {
                     Token::LParen => {
-                        Ok(ast::Program::LispProgram(self.read_lisp()?))
+                        Ok(types::Program::LispProgram(self.read_lisp()?))
                     }
                     _ => {
-                        Ok(ast::Program::ShellProgram(self.read_shell()?))
+                        Ok(types::Program::ShellProgram(self.read_shell()?))
                     }
                 }
             },
@@ -58,7 +75,7 @@ impl Parser {
         }
     }
 
-    fn read_lisp(&mut self) -> Result<ast::LispExpr> {
+    fn read_lisp(&mut self) -> Result<types::LispValue> {
         let token = self.peek();
 
         match token {
@@ -78,22 +95,8 @@ impl Parser {
         }
     }
 
-    fn read_list(&mut self) -> Result<ast::LispExpr> {
-        let token = self.next();
-
-        match token {
-            Some(token) => {
-                match token {
-                    Token::LParen => { }
-                    _ => {
-                        return Err(Error::ParseError);
-                    }
-                }
-            },
-            None => {
-                return Err(Error::ParseError);
-            }
-        }
+    fn read_list(&mut self) -> Result<types::LispValue> {
+        self.expect(Token::LParen)?;
 
         let mut forms = vec![];
 
@@ -117,21 +120,21 @@ impl Parser {
             }
         }
 
-        self.next();
+        self.expect(Token::RParen)?;
 
-        Ok(ast::LispExpr::List(forms))
+        Ok(types::list(forms))
     }
 
-    fn read_atom(&mut self) -> Result<ast::LispExpr> {
+    fn read_atom(&mut self) -> Result<types::LispValue> {
         let token = self.next();
 
         match token {
             Some(Token::Ident(token)) => {
                 if INTEGER_REGEX.is_match(&token) {
                     let value: i64 = token.parse().unwrap();
-                    Ok(ast::LispExpr::Integer(value))
+                    Ok(types::integer(value))
                 } else {
-                    Ok(ast::LispExpr::Symbol(token))
+                    Ok(types::symbol(token))
                 }
             },
             Some(_) => {
@@ -144,7 +147,7 @@ impl Parser {
 
     }
 
-    fn read_shell(&mut self) -> Result<ast::ShellExpr> {
+    fn read_shell(&mut self) -> Result<types::ShellExpr> {
         let command = self.read_ident()?;
 
         let mut args = vec![];
@@ -160,7 +163,7 @@ impl Parser {
             }
         }
 
-        Ok(ast::ShellExpr {
+        Ok(types::ShellExpr {
             command: command,
             args: args,
         })
@@ -185,7 +188,7 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
-    use ast::*;
+    use types::*;
     use super::*;
     use lexer::Lexer;
 
@@ -222,11 +225,11 @@ mod tests {
     fn parse_simple_lisp_expression() {
         let input = "(ls a b)";
         let expected = Program::LispProgram(
-            LispExpr::List(
+            types::list(
                 vec![
-                    LispExpr::Symbol("ls".to_owned()),
-                    LispExpr::Symbol("a".to_owned()),
-                    LispExpr::Symbol("b".to_owned())
+                    types::symbol("ls".to_owned()),
+                    types::symbol("a".to_owned()),
+                    types::symbol("b".to_owned())
                 ]
             )
         );
@@ -238,15 +241,15 @@ mod tests {
     fn parse_nested_lisp_expression() {
         let input = "((ls -42) b)";
         let expected = Program::LispProgram(
-            LispExpr::List(
+            types::list(
                 vec![
-                    LispExpr::List(
+                    types::list(
                         vec![
-                            LispExpr::Symbol("ls".to_owned()),
-                            LispExpr::Integer(-42)
+                            types::symbol("ls".to_owned()),
+                            types::integer(-42)
                         ]
                     ),
-                    LispExpr::Symbol("b".to_owned())
+                    types::symbol("b".to_owned())
                 ]
             )
         );

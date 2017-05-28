@@ -1,4 +1,4 @@
-use ast::LispExpr;
+use types::{LispType, LispValue};
 
 pub struct Printer;
 
@@ -7,15 +7,16 @@ impl Printer {
         Printer
     }
 
-    pub fn print(&self, lisp_expr: &LispExpr) -> String {
-        match *lisp_expr {
-            LispExpr::Integer(i) => i.to_string(),
-            LispExpr::Symbol(ref s) => s.clone(),
-            LispExpr::List(ref exprs) => self.print_list(exprs),
+    pub fn print(&self, lisp_expr: &LispValue) -> String {
+        match **lisp_expr {
+            LispType::Integer(i) => i.to_string(),
+            LispType::Symbol(ref s) => s.clone(),
+            LispType::NativeFunction(_) => "#<native-function ...>".to_owned(),
+            LispType::List(ref exprs) => self.print_list(exprs),
         }
     }
 
-    fn print_list(&self, exprs: &Vec<LispExpr>) -> String {
+    fn print_list(&self, exprs: &Vec<LispValue>) -> String {
         let mut first = true;
         let mut res = String::new();
 
@@ -36,25 +37,31 @@ impl Printer {
 
 #[cfg(test)]
 mod tests {
+    use types;
     use super::*;
+    use error::Result;
 
-    fn print(lisp_expr: &LispExpr) -> String {
+    fn mock_func(_: &[LispValue]) -> Result<LispValue> {
+        Ok(types::integer(3))
+    }
+
+    fn print(lisp_expr: &LispValue) -> String {
         Printer::new().print(lisp_expr)
     }
 
     #[test]
     fn print_symbol() {
-        assert_eq!(print(&LispExpr::Symbol("lol".to_owned())), "lol");
+        assert_eq!(print(&types::symbol("lol".to_owned())), "lol");
     }
 
     #[test]
     fn print_list() {
         assert_eq!(
             print(
-                &LispExpr::List(
+                &types::list(
                     vec![
-                        LispExpr::Symbol("lol".to_owned()),
-                        LispExpr::Symbol("lol2".to_owned())
+                        types::symbol("lol".to_owned()),
+                        types::symbol("lol2".to_owned())
                     ]
                 )
             ),
@@ -63,17 +70,25 @@ mod tests {
     }
 
     #[test]
+    fn print_native_function() {
+        assert_eq!(
+            print( &types::native_function(mock_func)),
+            "#<native-function ...>"
+        );
+    }
+
+    #[test]
     fn print_nested_list() {
         assert_eq!(
             print(
-                &LispExpr::List(
+                &types::list(
                     vec![
-                        LispExpr::List(
+                        types::list(
                             vec![
-                                LispExpr::Symbol("lol".to_owned())
+                                types::symbol("lol".to_owned())
                             ]
                         ),
-                        LispExpr::Symbol("lol2".to_owned())
+                        types::symbol("lol2".to_owned())
                     ]
                 )
             ),

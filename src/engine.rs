@@ -1,8 +1,9 @@
 use lexer::Lexer;
 use parser::Parser;
-use evaluator::{Evaluator, EvalResult};
+use evaluator::{Evaluator};
 use printer::Printer;
 use error::Result;
+use core;
 
 pub struct Engine {
     lexer: Lexer,
@@ -22,14 +23,16 @@ impl Engine {
     }
 
     pub fn run(&mut self, input: &str) -> Result<()> {
+        let repl_env = core::env::create();
+
         let tokens = self.lexer.tokenize(input)?;
         self.parser.add_tokens(tokens);
         let ast = self.parser.parse()?;
-        let result = self.evaluator.eval(ast)?;
+        let result = self.evaluator.eval(ast, repl_env)?;
 
         match result {
-            EvalResult::Done => Ok(()),
-            EvalResult::LispExpr(lisp_expr) => {
+            None => Ok(()),
+            Some(lisp_expr) => {
                 println!("{}", self.printer.print(&lisp_expr));
                 Ok(())
             }

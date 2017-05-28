@@ -15,6 +15,9 @@ pub enum Error {
     IoError(io::Error),
     UnexpectedCharacter(char),
     ParseError,
+    UndefinedBinding(String),
+    ApplyNonFunction,
+    TypeError,
     Unknown,
 }
 

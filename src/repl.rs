@@ -26,6 +26,9 @@ impl Repl {
                 Ok(()) => {}
                 Err(Error::Interrupted) => {}
                 Err(Error::Eof) => break,
+                Err(Error::ReadlineError(e)) => {
+                    println!("{}", e);
+                }
                 Err(Error::IoError(e)) => {
                     println!("{}", e);
                 }
@@ -35,9 +38,17 @@ impl Repl {
                 Err(Error::ParseError) => {
                     println!("Parse error");
                 }
-                Err(err) => {
-                    println!("Error: {:?}", err);
-                    break;
+                Err(Error::UndefinedBinding(name)) => {
+                    println!("Undefined binding: {}", name);
+                }
+                Err(Error::ApplyNonFunction) => {
+                    println!("Trying to apply non function");
+                }
+                Err(Error::TypeError) => {
+                    println!("Type error");
+                }
+                Err(Error::Unknown) => {
+                    println!("Unknown error");
                 }
             }
         }
