@@ -50,6 +50,11 @@ mod tests {
     }
 
     #[test]
+    fn print_integer() {
+        assert_eq!(print(&types::integer(-34)), "-34");
+    }
+
+    #[test]
     fn print_symbol() {
         assert_eq!(print(&types::symbol("lol".to_owned())), "lol");
     }
