@@ -17,8 +17,8 @@ impl Lexer {
         match lex_tokens(input) {
             IResult::Done("", tokens) => Ok(tokens),
             IResult::Done(i, _) => Err(Error::UnexpectedCharacter(i.chars().nth(0).unwrap())),
-            IResult::Error(_) => Err(Error::Unknown),
-            IResult::Incomplete(_) => Err(Error::Unknown),
+            IResult::Error(_) => Err(Error::UnknownLexerError),
+            IResult::Incomplete(_) => Err(Error::UnknownLexerError),
         }
     }
 }

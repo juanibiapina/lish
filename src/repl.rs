@@ -50,8 +50,8 @@ impl Repl {
                 Err(Error::TypeError) => {
                     println!("Type error");
                 }
-                Err(Error::Unknown) => {
-                    println!("Unknown error");
+                Err(Error::UnknownLexerError) => {
+                    println!("Unknown lexer error");
                 }
             }
         }

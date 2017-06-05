@@ -15,6 +15,7 @@ pub enum Error {
 
     // lexer
     UnexpectedCharacter(char),
+    UnknownLexerError,
 
     // parser
     ParseError,
@@ -30,9 +31,6 @@ pub enum Error {
     UndefinedBinding(String),
     ApplyNonFunction,
     TypeError,
-
-    // unknown
-    Unknown,
 }
 
 impl From<ReadlineError> for Error {
