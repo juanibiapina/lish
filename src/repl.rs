@@ -44,6 +44,9 @@ impl Repl {
                 Err(Error::UndefinedBinding(name)) => {
                     println!("Undefined binding: {}", name);
                 }
+                Err(Error::ApplyEmptyList) => {
+                    println!("apply error: unable to apply empty list");
+                }
                 Err(Error::ApplyNonFunction) => {
                     println!("Trying to apply non function");
                 }

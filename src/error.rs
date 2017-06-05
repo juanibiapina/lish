@@ -29,6 +29,7 @@ pub enum Error {
 
     // lisp
     UndefinedBinding(String),
+    ApplyEmptyList,
     ApplyNonFunction,
     TypeError,
 }

@@ -105,7 +105,7 @@ impl Evaluator {
     fn eval_function(&self, list: &[LispValue], env: Env) -> Result<LispValue> {
         match list {
             &[] => {
-                Err(Error::ApplyNonFunction)
+                Err(Error::ApplyEmptyList)
             }
             &[ref head, ref tail..] => {
                 let evaluated_head = self.eval_lisp_expr(head.clone(), env.clone())?;
