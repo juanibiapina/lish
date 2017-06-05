@@ -9,16 +9,29 @@ pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
+    // input
     Interrupted,
     Eof,
+
+    // lexer
+    UnexpectedCharacter(char),
+
+    // parser
+    ParseError,
+
+    // crates
     ReadlineError(ReadlineError),
     IoError(io::Error),
-    UnexpectedCharacter(char),
-    ParseError,
+
+    // shell
     CommandNotFound(String),
+
+    // lisp
     UndefinedBinding(String),
     ApplyNonFunction,
     TypeError,
+
+    // unknown
     Unknown,
 }
 
