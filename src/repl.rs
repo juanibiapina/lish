@@ -6,10 +6,13 @@ use error::Result;
 use readliner::create_readliner;
 use readliner::Readliner;
 use engine::Engine;
+use printer::Printer;
+use types::LispValue;
 
 pub struct Repl {
     readliner: Box<Readliner>,
     engine: Engine,
+    printer: Printer,
 }
 
 impl Repl {
@@ -17,13 +20,17 @@ impl Repl {
         Repl {
             readliner: create_readliner(),
             engine: Engine::new(),
+            printer: Printer::new(),
         }
     }
 
     pub fn run(&mut self) {
         loop {
-            match self.rep() {
-                Ok(()) => {}
+            match self.read_eval() {
+                Ok(None) => {}
+                Ok(Some(value)) => {
+                    println!("{}", self.printer.print(&value));
+                }
                 Err(Error::Interrupted) => {}
                 Err(Error::Eof) => break,
                 Err(Error::ReadlineError(e)) => {
@@ -60,13 +67,11 @@ impl Repl {
         }
     }
 
-    fn rep(&mut self) -> Result<()> {
+    fn read_eval(&mut self) -> Result<Option<LispValue>> {
         let line = self.readliner.readline()?;
-
-        self.engine.run(&line)?;
 
         self.readliner.add_history_entry(&line);
 
-        Ok(())
+        self.engine.run(&line)
     }
 }
