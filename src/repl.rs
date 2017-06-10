@@ -54,8 +54,8 @@ impl Repl {
                 Err(Error::ApplyEmptyList) => {
                     println!("apply error: unable to apply empty list");
                 }
-                Err(Error::ApplyNonFunction) => {
-                    println!("Trying to apply non function");
+                Err(Error::ApplyNonFunction(value)) => {
+                    println!("apply error: expected function, got: {}", self.printer.print(&value));
                 }
                 Err(Error::TypeError) => {
                     println!("Type error");

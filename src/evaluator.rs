@@ -76,7 +76,7 @@ impl Evaluator {
                         FormType::from(name)
                     }
                     _ => {
-                        return Err(Error::ApplyNonFunction);
+                        return Err(Error::ApplyNonFunction(head.clone()));
                     }
                 };
 
@@ -116,7 +116,7 @@ impl Evaluator {
                         (data.body)(&evaluated_tail)
                     }
                     _ => {
-                        Err(Error::ApplyNonFunction)
+                        Err(Error::ApplyNonFunction(evaluated_head.clone()))
                     }
                 }
             }

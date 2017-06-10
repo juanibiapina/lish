@@ -27,3 +27,6 @@ non_existent_command
 
 (+ n1 1)
 ;=>2
+
+(1 2 3)
+;=>apply error: expected function, got: 1

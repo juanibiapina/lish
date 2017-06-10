@@ -5,6 +5,8 @@ use std::io;
 
 use self::rustyline::error::ReadlineError;
 
+use types::LispValue;
+
 pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug)]
@@ -30,7 +32,7 @@ pub enum Error {
     // lisp
     UndefinedBinding(String),
     ApplyEmptyList,
-    ApplyNonFunction,
+    ApplyNonFunction(LispValue),
     TypeError,
 }
 
