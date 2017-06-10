@@ -5,16 +5,16 @@
 ;=>text
 
 non_existent_command
-;=>Command not found: non_existent_command
+;=>shell error: command not found: non_existent_command
 
 |
-;=>Unexpected character `|`
+;=>lexer error: unexpected character `|`
 
 (ls
-;=>Parse error
+;=>parser error
 
 (undefinedthing 1 2)
-;=>Undefined binding: undefinedthing
+;=>lookup error: undefined binding: undefinedthing
 
 (+ 1 2)
 ;=>3

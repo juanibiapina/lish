@@ -34,22 +34,22 @@ impl Repl {
                 Err(Error::Interrupted) => {}
                 Err(Error::Eof) => break,
                 Err(Error::ReadlineError(e)) => {
-                    println!("{}", e);
+                    println!("readline error: {}", e);
                 }
                 Err(Error::IoError(e)) => {
-                    println!("{}", e);
+                    println!("io error: {}", e);
                 }
                 Err(Error::UnexpectedCharacter(c)) => {
-                    println!("Unexpected character `{}`", c);
+                    println!("lexer error: unexpected character `{}`", c);
                 }
                 Err(Error::ParseError) => {
-                    println!("Parse error");
+                    println!("parser error");
                 }
                 Err(Error::CommandNotFound(command)) => {
-                    println!("Command not found: {}", command);
+                    println!("shell error: command not found: {}", command);
                 }
                 Err(Error::UndefinedBinding(name)) => {
-                    println!("Undefined binding: {}", name);
+                    println!("lookup error: undefined binding: {}", name);
                 }
                 Err(Error::ApplyEmptyList) => {
                     println!("apply error: unable to apply empty list");
@@ -58,10 +58,10 @@ impl Repl {
                     println!("apply error: expected function, got: {}", self.printer.print(&value));
                 }
                 Err(Error::TypeError) => {
-                    println!("Type error");
+                    println!("type error");
                 }
                 Err(Error::UnknownLexerError) => {
-                    println!("Unknown lexer error");
+                    println!("lexer error: unknown");
                 }
             }
         }
