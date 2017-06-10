@@ -70,7 +70,7 @@ impl Parser {
                 }
             },
             None => {
-                Err(Error::ParseError)
+                Ok(types::Program::EmptyProgram)
             }
         }
     }

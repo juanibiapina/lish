@@ -53,6 +53,9 @@ impl Evaluator {
             Program::LispProgram(lisp_expr) => {
                 Ok(Some(self.eval_lisp_expr(lisp_expr, env)?))
             }
+            Program::EmptyProgram => {
+                Ok(None)
+            }
         }
     }
 
@@ -156,6 +159,13 @@ mod tests {
         let evaluator = Evaluator::new();
 
         evaluator.eval(types::Program::LispProgram(expr), env)
+    }
+
+    #[test]
+    fn eval_empty_program() {
+        let evaluator = Evaluator::new();
+
+        assert_eq!(evaluator.eval(types::Program::EmptyProgram, env_new()).unwrap(), None);
     }
 
     #[test]

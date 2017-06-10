@@ -8,6 +8,7 @@ use error::Result;
 pub enum Program {
     ShellProgram(ShellExpr),
     LispProgram(LispValue),
+    EmptyProgram,
 }
 
 #[derive(PartialEq, Debug)]

@@ -28,8 +28,8 @@ impl Engine {
     pub fn run(&mut self, input: &str) -> Result<Option<LispValue>> {
         let tokens = self.lexer.tokenize(input)?;
         self.parser.add_tokens(tokens);
-        let ast = self.parser.parse()?;
+        let program = self.parser.parse()?;
 
-        self.evaluator.eval(ast, self.env.clone())
+        self.evaluator.eval(program, self.env.clone())
     }
 }
