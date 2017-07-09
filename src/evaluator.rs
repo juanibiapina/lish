@@ -85,7 +85,7 @@ impl Evaluator {
                         FormType::from(name)
                     }
                     _ => {
-                        return Err(Error::ApplyNonFunction(head.clone()));
+                        FormType::Function
                     }
                 };
 
