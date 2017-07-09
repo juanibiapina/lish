@@ -14,8 +14,8 @@ mod lexer;
 mod parser;
 mod env;
 mod evaluator;
-mod printer;
 mod core;
-mod engine;
 
+pub mod printer;
+pub mod engine;
 pub mod repl;
