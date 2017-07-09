@@ -7,6 +7,7 @@ use error::{Error, Result};
 
 enum FormType {
     Def,
+    Do,
     Function,
 }
 
@@ -14,6 +15,7 @@ impl FormType {
     pub fn from(name: &str) -> FormType {
         match name {
             "def" => FormType::Def,
+            "do" => FormType::Do,
             _ => FormType::Function,
         }
     }
@@ -89,6 +91,7 @@ impl Evaluator {
 
                 match form_type {
                     FormType::Def => self.eval_def(tail, env),
+                    FormType::Do => self.eval_do(tail, env),
                     FormType::Function => self.eval_function(list, env),
                 }
             }
@@ -107,6 +110,16 @@ impl Evaluator {
             },
             _ => panic!("def! of non-symbol"),
         }
+    }
+
+    fn eval_do(&self, args: &[LispValue], env: Env) -> Result<LispValue> {
+        let mut result = types::nil();
+
+        for arg in args {
+            result = self.eval_lisp_expr(arg.clone(), env.clone())?;
+        }
+
+        Ok(result)
     }
 
     fn eval_function(&self, list: &[LispValue], env: Env) -> Result<LispValue> {
@@ -246,5 +259,36 @@ mod tests {
         ).unwrap().unwrap();
 
         assert_eq!(env_get(&env, "a").unwrap(), types::integer(1));
+    }
+
+    #[test]
+    fn eval_do() {
+        let env = core::env::create();
+
+        assert_eq!(
+            eval(
+                types::list(
+                    vec![
+                        types::symbol("do".to_owned()),
+                        types::list(
+                            vec![
+                                types::symbol("+".to_owned()),
+                                types::integer(1),
+                                types::integer(2),
+                            ]
+                        ),
+                        types::list(
+                            vec![
+                                types::symbol("+".to_owned()),
+                                types::integer(3),
+                                types::integer(4),
+                            ]
+                        ),
+                    ]
+                ),
+                env.clone()
+            ).unwrap().unwrap(),
+            types::integer(7)
+        );
     }
 }
