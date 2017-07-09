@@ -1,7 +1,7 @@
 use std::process::Command;
 use std::io::ErrorKind;
 
-use types::{self, Program, LispType, LispValue};
+use types::{self, Program, LispType, LispValue, ShellExpr};
 use env::{Env, env_get, env_set};
 use error::{Error, Result};
 
@@ -29,26 +29,7 @@ impl Evaluator {
     pub fn eval(&self, program: Program, env: Env) -> Result<Option<LispValue>> {
         match program {
             Program::ShellProgram(shell_expr) => {
-                let mut command = Command::new(&shell_expr.command);
-                command.args(&shell_expr.args);
-
-                let mut child = match command.spawn() {
-                    Ok(result) => result,
-                    Err(err) => {
-                        match err.kind() {
-                            ErrorKind::NotFound => {
-                                return Err(Error::CommandNotFound(shell_expr.command.to_owned()));
-                            }
-                            _ => {
-                                return Err(Error::IoError(err));
-                            }
-                        }
-                    }
-                };
-
-                child.wait()?;
-
-                Ok(None)
+                self.eval_shell_expr(shell_expr)
             }
             Program::LispProgram(lisp_expr) => {
                 Ok(Some(self.eval_lisp_expr(lisp_expr, env)?))
@@ -57,6 +38,29 @@ impl Evaluator {
                 Ok(None)
             }
         }
+    }
+
+    fn eval_shell_expr(&self, shell_expr: ShellExpr) -> Result<Option<LispValue>> {
+        let mut command = Command::new(&shell_expr.command);
+        command.args(&shell_expr.args);
+
+        let mut child = match command.spawn() {
+            Ok(result) => result,
+            Err(err) => {
+                match err.kind() {
+                    ErrorKind::NotFound => {
+                        return Err(Error::CommandNotFound(shell_expr.command.to_owned()));
+                    }
+                    _ => {
+                        return Err(Error::IoError(err));
+                    }
+                }
+            }
+        };
+
+        child.wait()?;
+
+        Ok(None)
     }
 
     fn eval_lisp_expr(&self, lisp_expr: LispValue, env: Env) -> Result<LispValue> {
