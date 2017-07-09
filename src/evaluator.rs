@@ -178,6 +178,11 @@ mod tests {
     }
 
     #[test]
+    fn eval_lisp_string() {
+        assert_eq!(eval(types::string("value".to_owned()), env_new()).unwrap().unwrap(), types::string("value".to_owned()));
+    }
+
+    #[test]
     fn eval_lisp_symbol() {
         let env = env_new();
         env_set(&env, "name", types::integer(42));

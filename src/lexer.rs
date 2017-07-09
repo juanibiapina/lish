@@ -43,8 +43,8 @@ named!(lex_rparen<&str, Token>,
 
 named!(lex_ident<&str, Token>,
     do_parse!(
-	w: re_find!(r"^(?:[[:word:]]|/|-|\+|\*|%|=)+") >>
-	(Token::Ident(w.to_owned()))
+	w: re_capture!(r#"^((?:[[:word:]]|/|-|\+|\*|%|=)+)|^(".*")"#) >>
+	(Token::Ident(w[0].to_owned()))
     )
 );
 
@@ -91,6 +91,11 @@ mod tests {
     #[test]
     fn lex_ident_with_math_symbols() {
         assert_eq!(lex("+=-*%").unwrap(), vec![Token::Ident("+=-*%".to_owned())]);
+    }
+
+    #[test]
+    fn lex_ident_with_quotes() {
+        assert_eq!(lex("\"abc def\"").unwrap(), vec!(Token::Ident("\"abc def\"".to_owned())));
     }
 
     #[test]

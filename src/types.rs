@@ -22,6 +22,7 @@ pub enum LispType {
     Nil,
     Integer(i64),
     Symbol(String),
+    Strn(String),
     NativeFunction(NativeFunctionType),
     List(Vec<LispValue>),
 }
@@ -56,6 +57,10 @@ pub fn list(seq: Vec<LispValue>) -> LispValue {
 
 pub fn integer(i: i64) -> LispValue {
     Rc::new(LispType::Integer(i))
+}
+
+pub fn string(value: String) -> LispValue {
+    Rc::new(LispType::Strn(value))
 }
 
 pub fn symbol(value: String) -> LispValue {

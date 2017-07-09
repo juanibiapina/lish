@@ -11,6 +11,7 @@ impl Printer {
         match **lisp_expr {
             LispType::Nil => "nil".to_owned(),
             LispType::Integer(i) => i.to_string(),
+            LispType::Strn(ref s) => s.clone(),
             LispType::Symbol(ref s) => s.clone(),
             LispType::NativeFunction(_) => "#<native-function ...>".to_owned(),
             LispType::List(ref exprs) => self.print_list(exprs),
@@ -63,6 +64,11 @@ mod tests {
     #[test]
     fn print_symbol() {
         assert_eq!(print(&types::symbol("lol".to_owned())), "lol");
+    }
+
+    #[test]
+    fn print_string() {
+        assert_eq!(print(&types::string("lol".to_owned())), "lol");
     }
 
     #[test]

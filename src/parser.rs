@@ -9,6 +9,7 @@ use types;
 
 lazy_static! {
     static ref INTEGER_REGEX: regex::Regex = regex::Regex::new(r"^-?[0-9]+$").unwrap();
+    static ref STRING_REGEX: regex::Regex = regex::Regex::new(r#"^".*"$"#).unwrap();
 }
 
 pub struct Parser {
@@ -135,6 +136,8 @@ impl Parser {
                     Ok(types::integer(value))
                 } else if token == "nil" {
                     Ok(types::nil())
+                } else if STRING_REGEX.is_match(&token) {
+                    Ok(types::string(token[1..token.len()-1].to_owned()))
                 } else {
                     Ok(types::symbol(token))
                 }
@@ -266,6 +269,20 @@ mod tests {
                         ]
                     ),
                     types::symbol("b".to_owned())
+                ]
+            )
+        );
+
+        assert_input_with_ast(input, expected);
+    }
+
+    #[test]
+    fn parse_string() {
+        let input = "(\"string value\")";
+        let expected = Program::LispProgram(
+            types::list(
+                vec![
+                    types::string("string value".to_owned())
                 ]
             )
         );
