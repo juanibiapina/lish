@@ -3,6 +3,7 @@ use std::rc::Rc;
 use std::fmt::Debug;
 
 use error::Result;
+use env::Env;
 
 #[derive(PartialEq, Debug)]
 pub enum Program {
@@ -23,11 +24,19 @@ pub enum LispType {
     Integer(i64),
     Symbol(String),
     Strn(String),
+    Function(FunctionData),
     NativeFunction(NativeFunctionType),
     List(Vec<LispValue>),
 }
 
 pub type LispValue = Rc<LispType>;
+
+#[derive(PartialEq, Debug)]
+pub struct FunctionData {
+    pub params: LispValue,
+    pub body: LispValue,
+    pub env: Env,
+}
 
 pub struct NativeFunctionType {
     pub body: (fn(&[LispValue]) -> Result<LispValue>),
@@ -69,4 +78,12 @@ pub fn symbol(value: String) -> LispValue {
 
 pub fn native_function(f: (fn(&[LispValue]) -> Result<LispValue>)) -> LispValue {
     Rc::new(LispType::NativeFunction(NativeFunctionType{ body: f }))
+}
+
+pub fn function(params: LispValue, body: LispValue, env: Env) -> LispValue {
+    Rc::new(LispType::Function(FunctionData {
+        params: params,
+        body: body,
+        env: env,
+    }))
 }

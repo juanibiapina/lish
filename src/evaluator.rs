@@ -8,6 +8,7 @@ use error::{Error, Result};
 enum FormType {
     Def,
     Do,
+    Fn,
     Function,
 }
 
@@ -16,6 +17,7 @@ impl FormType {
         match name {
             "def" => FormType::Def,
             "do" => FormType::Do,
+            "fn" => FormType::Fn,
             _ => FormType::Function,
         }
     }
@@ -92,6 +94,7 @@ impl Evaluator {
                 match form_type {
                     FormType::Def => self.eval_def(tail, env),
                     FormType::Do => self.eval_do(tail, env),
+                    FormType::Fn => self.eval_fn(tail, env),
                     FormType::Function => self.eval_function(list, env),
                 }
             }
@@ -122,6 +125,13 @@ impl Evaluator {
         Ok(result)
     }
 
+    fn eval_fn(&self, args: &[LispValue], env: Env) -> Result<LispValue> {
+        let params = args[0].clone();
+        let body = args[1].clone();
+
+        Ok(types::function(params, body, env))
+    }
+
     fn eval_function(&self, list: &[LispValue], env: Env) -> Result<LispValue> {
         match list {
             &[] => {
@@ -134,6 +144,11 @@ impl Evaluator {
                         let evaluated_tail = self.eval_list(tail, env)?;
 
                         (data.body)(&evaluated_tail)
+                    }
+                    LispType::Function(ref data) => {
+                        let body = data.body.clone();
+                        let env = data.env.clone();
+                        self.eval_lisp_expr(body, env)
                     }
                     _ => {
                         Err(Error::ApplyNonFunction(evaluated_head.clone()))
@@ -289,6 +304,29 @@ mod tests {
                 env.clone()
             ).unwrap().unwrap(),
             types::integer(7)
+        );
+    }
+
+    #[test]
+    fn eval_fn() {
+        let env = env_new();
+
+        assert_eq!(
+            eval(
+                types::list(
+                    vec![
+                        types::list(
+                            vec![
+                                types::symbol("fn".to_owned()),
+                                types::list(vec![]),
+                                types::integer(1),
+                            ]
+                        ),
+                    ]
+                ),
+                env.clone()
+            ).unwrap().unwrap(),
+            types::integer(1)
         );
     }
 }

@@ -5,6 +5,7 @@ use std::cell::RefCell;
 use error::{Error, Result};
 use types::LispValue;
 
+#[derive(PartialEq, Debug)]
 pub struct EnvType {
     data: HashMap<String, LispValue>,
 }

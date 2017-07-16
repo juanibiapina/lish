@@ -13,6 +13,7 @@ impl Printer {
             LispType::Integer(i) => i.to_string(),
             LispType::Strn(ref s) => s.clone(),
             LispType::Symbol(ref s) => s.clone(),
+            LispType::Function(_) => "#<function ...>".to_owned(),
             LispType::NativeFunction(_) => "#<native-function ...>".to_owned(),
             LispType::List(ref exprs) => self.print_list(exprs),
         }
@@ -42,6 +43,7 @@ mod tests {
     use types;
     use super::*;
     use error::Result;
+    use env;
 
     fn mock_func(_: &[LispValue]) -> Result<LispValue> {
         Ok(types::integer(3))
@@ -91,6 +93,14 @@ mod tests {
         assert_eq!(
             print( &types::native_function(mock_func)),
             "#<native-function ...>"
+        );
+    }
+
+    #[test]
+    fn print_function() {
+        assert_eq!(
+            print(&types::function(types::integer(1), types::integer(2), env::env_new())),
+            "#<function ...>"
         );
     }
 
