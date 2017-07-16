@@ -14,7 +14,7 @@ fn ns() -> HashMap<&'static str, LispValue> {
 }
 
 pub fn create() -> Env {
-    let env = env_new();
+    let env = env_new(None);
 
     for (k, v) in ns().into_iter() {
         env_set(&env, k, v);

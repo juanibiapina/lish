@@ -2,7 +2,7 @@ use std::process::Command;
 use std::io::ErrorKind;
 
 use types::{self, Program, LispType, LispValue, ShellExpr};
-use env::{Env, env_get, env_set};
+use env::{Env, env_new, env_get, env_set};
 use error::{Error, Result};
 
 enum FormType {
@@ -147,7 +147,7 @@ impl Evaluator {
                     }
                     LispType::Function(ref data) => {
                         let body = data.body.clone();
-                        let env = data.env.clone();
+                        let env = env_new(Some(data.env.clone()));
                         self.eval_lisp_expr(body, env)
                     }
                     _ => {
@@ -197,22 +197,22 @@ mod tests {
     fn eval_empty_program() {
         let evaluator = Evaluator::new();
 
-        assert_eq!(evaluator.eval(types::Program::EmptyProgram, env_new()).unwrap(), None);
+        assert_eq!(evaluator.eval(types::Program::EmptyProgram, env_new(None)).unwrap(), None);
     }
 
     #[test]
     fn eval_lisp_integer() {
-        assert_eq!(eval(types::integer(1), env_new()).unwrap().unwrap(), types::integer(1));
+        assert_eq!(eval(types::integer(1), env_new(None)).unwrap().unwrap(), types::integer(1));
     }
 
     #[test]
     fn eval_lisp_string() {
-        assert_eq!(eval(types::string("value".to_owned()), env_new()).unwrap().unwrap(), types::string("value".to_owned()));
+        assert_eq!(eval(types::string("value".to_owned()), env_new(None)).unwrap().unwrap(), types::string("value".to_owned()));
     }
 
     #[test]
     fn eval_lisp_symbol() {
-        let env = env_new();
+        let env = env_new(None);
         env_set(&env, "name", types::integer(42));
 
         assert_eq!(eval(types::symbol("name".to_owned()), env).unwrap().unwrap(), types::integer(42));
@@ -260,7 +260,7 @@ mod tests {
 
     #[test]
     fn eval_def() {
-        let env = env_new();
+        let env = env_new(None);
 
         eval(
             types::list(
@@ -309,7 +309,7 @@ mod tests {
 
     #[test]
     fn eval_fn() {
-        let env = env_new();
+        let env = env_new(None);
 
         assert_eq!(
             eval(
