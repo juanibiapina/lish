@@ -4,6 +4,7 @@ use env::{Env, env_new, env_set};
 use types::{LispValue, native_function};
 use core::math;
 use core::file;
+use core::reader;
 
 fn ns() -> HashMap<&'static str, LispValue> {
     let mut ns = HashMap::new();;
@@ -11,6 +12,7 @@ fn ns() -> HashMap<&'static str, LispValue> {
     ns.insert("+", native_function(math::add));
     ns.insert("-", native_function(math::sub));
     ns.insert("slurp", native_function(file::slurp));
+    ns.insert("read", native_function(reader::read));
 
     ns
 }
