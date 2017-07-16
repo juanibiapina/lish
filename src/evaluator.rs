@@ -125,8 +125,22 @@ impl Evaluator {
         Ok(result)
     }
 
+    fn validate_and_convert_param_list(&self, param_list: LispValue) -> Result<Vec<String>> {
+        fn validate_and_convert_param(param: &LispValue) -> Result<String> {
+            match **param {
+                types::LispType::Symbol(ref name) => Ok(name.to_owned()),
+                _ => Err(Error::TypeError),
+            }
+        }
+
+        match *param_list {
+            types::LispType::List(ref values) => values.iter().map(validate_and_convert_param).collect(),
+            _ => Err(Error::TypeError),
+        }
+    }
+
     fn eval_fn(&self, args: &[LispValue], env: Env) -> Result<LispValue> {
-        let params = args[0].clone();
+        let params = self.validate_and_convert_param_list(args[0].clone())?;
         let body = args[1].clone();
 
         Ok(types::function(params, body, env))
@@ -139,15 +153,20 @@ impl Evaluator {
             }
             &[ref head, ref tail..] => {
                 let evaluated_head = self.eval_lisp_expr(head.clone(), env.clone())?;
+                let evaluated_tail = self.eval_list(tail, env)?;
+
                 match *evaluated_head {
                     LispType::NativeFunction(ref data) => {
-                        let evaluated_tail = self.eval_list(tail, env)?;
-
                         (data.body)(&evaluated_tail)
                     }
                     LispType::Function(ref data) => {
                         let body = data.body.clone();
                         let env = env_new(Some(data.env.clone()));
+
+                        for (name, argument) in data.params.iter().zip(evaluated_tail.iter()) {
+                            env_set(&env, name, argument.clone());
+                        }
+
                         self.eval_lisp_expr(body, env)
                     }
                     _ => {

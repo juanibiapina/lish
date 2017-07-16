@@ -99,7 +99,7 @@ mod tests {
     #[test]
     fn print_function() {
         assert_eq!(
-            print(&types::function(types::integer(1), types::integer(2), env::env_new(None))),
+            print(&types::function(vec!["a".to_owned()], types::integer(2), env::env_new(None))),
             "#<function ...>"
         );
     }

@@ -33,7 +33,7 @@ pub type LispValue = Rc<LispType>;
 
 #[derive(PartialEq, Debug)]
 pub struct FunctionData {
-    pub params: LispValue,
+    pub params: Vec<String>,
     pub body: LispValue,
     pub env: Env,
 }
@@ -80,7 +80,7 @@ pub fn native_function(f: (fn(&[LispValue]) -> Result<LispValue>)) -> LispValue 
     Rc::new(LispType::NativeFunction(NativeFunctionType{ body: f }))
 }
 
-pub fn function(params: LispValue, body: LispValue, env: Env) -> LispValue {
+pub fn function(params: Vec<String>, body: LispValue, env: Env) -> LispValue {
     Rc::new(LispType::Function(FunctionData {
         params: params,
         body: body,

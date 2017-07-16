@@ -38,3 +38,10 @@ fn capture_outer_variable() {
 
     assert_eq!(run(&mut engine, "((fn () x))"), "3");
 }
+
+#[test]
+fn with_one_argument() {
+    let mut engine = Engine::new();
+
+    assert_eq!(run(&mut engine, "((fn (a) a) 3)"), "3");
+}
