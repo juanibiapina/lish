@@ -3,12 +3,14 @@ use std::collections::HashMap;
 use env::{Env, env_new, env_set};
 use types::{LispValue, native_function};
 use core::math;
+use core::file;
 
 fn ns() -> HashMap<&'static str, LispValue> {
     let mut ns = HashMap::new();;
 
     ns.insert("+", native_function(math::add));
     ns.insert("-", native_function(math::sub));
+    ns.insert("slurp", native_function(file::slurp));
 
     ns
 }
