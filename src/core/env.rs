@@ -5,14 +5,18 @@ use types::{LispValue, native_function};
 use core::math;
 use core::file;
 use core::reader;
+use core::list;
 
 fn ns() -> HashMap<&'static str, LispValue> {
     let mut ns = HashMap::new();;
 
     ns.insert("+", native_function(math::add));
     ns.insert("-", native_function(math::sub));
+
     ns.insert("slurp", native_function(file::slurp));
     ns.insert("read", native_function(reader::read));
+
+    ns.insert("list", native_function(list::list_c));
 
     ns
 }
