@@ -10,6 +10,7 @@ enum FormType {
     Do,
     Fn,
     Function,
+    Eval,
 }
 
 impl FormType {
@@ -18,6 +19,7 @@ impl FormType {
             "def" => FormType::Def,
             "do" => FormType::Do,
             "fn" => FormType::Fn,
+            "eval" => FormType::Eval,
             _ => FormType::Function,
         }
     }
@@ -96,6 +98,7 @@ impl Evaluator {
                     FormType::Do => self.eval_do(tail, env),
                     FormType::Fn => self.eval_fn(tail, env),
                     FormType::Function => self.eval_function(list, env),
+                    FormType::Eval => self.eval_eval(tail, env),
                 }
             }
         }
@@ -175,6 +178,12 @@ impl Evaluator {
                 }
             }
         }
+    }
+
+    fn eval_eval(&self, args: &[LispValue], env: Env) -> Result<LispValue> {
+        let ast = self.eval_lisp_expr(args[0].clone(), env.clone())?;
+
+        self.eval_lisp_expr(ast, env.clone())
     }
 
     fn eval_ast(&self, lisp_expr: LispValue, env: Env) -> Result<LispValue> {
@@ -346,6 +355,31 @@ mod tests {
                 env.clone()
             ).unwrap().unwrap(),
             types::integer(1)
+        );
+    }
+
+    #[test]
+    fn eval_eval() {
+        let env = core::env::create();
+
+        assert_eq!(
+            eval(
+                types::list(
+                    vec![
+                        types::symbol("eval".to_owned()),
+                        types::list(
+                            vec![
+                                types::symbol("list".to_owned()),
+                                types::symbol("+".to_owned()),
+                                types::integer(1),
+                                types::integer(2),
+                            ]
+                        ),
+                    ]
+                ),
+                env.clone()
+            ).unwrap().unwrap(),
+            types::integer(3)
         );
     }
 }
