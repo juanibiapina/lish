@@ -11,6 +11,6 @@ fn run(input: &str) -> String {
 }
 
 #[test]
-fn special_form_eval() {
+fn eval_a_list() {
     assert_eq!(run("(eval (list + 2 3))"), "5");
 }
