@@ -1,0 +1,1 @@
+(def load-file (fn (f) (eval (read (str "(do " (slurp f) ")")))))
