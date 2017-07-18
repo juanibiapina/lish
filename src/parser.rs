@@ -289,4 +289,34 @@ mod tests {
 
         assert_input_with_ast(input, expected);
     }
+
+    #[test]
+    fn parse_two_strings_on_same_line() {
+        let input = "(\"a\" \"b\")";
+        let expected = Program::LispProgram(
+            types::list(
+                vec![
+                    types::string("a".to_owned()),
+                    types::string("b".to_owned())
+                ]
+            )
+        );
+
+        assert_input_with_ast(input, expected);
+    }
+
+    #[test]
+    fn parse_string_with_quotes() {
+        let input = "(\"a \\\" \" \"b\")";
+        let expected = Program::LispProgram(
+            types::list(
+                vec![
+                    types::string("a \\\" ".to_owned()),
+                    types::string("b".to_owned())
+                ]
+            )
+        );
+
+        assert_input_with_ast(input, expected);
+    }
 }

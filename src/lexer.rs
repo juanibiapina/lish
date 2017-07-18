@@ -43,7 +43,7 @@ named!(lex_rparen<&str, Token>,
 
 named!(lex_ident<&str, Token>,
     do_parse!(
-	w: re_capture!(r#"^((?:[[:word:]]|/|-|\+|\*|%|=)+)|^(".*")"#) >>
+	w: re_capture!(r#"^((?:[[:word:]]|/|-|\+|\*|%|=)+)|^("(?:\\.|[^\\"])*")"#) >>
 	(Token::Ident(w[0].to_owned()))
     )
 );
