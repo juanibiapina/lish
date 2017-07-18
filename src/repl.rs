@@ -17,9 +17,16 @@ pub struct Repl {
 
 impl Repl {
     pub fn new() -> Repl {
+        let mut engine = Engine::new();
+
+        match engine.load_standard_library() {
+            Ok(()) => {},
+            Err(e) => panic!("{:?}", e),
+        };
+
         Repl {
             readliner: create_readliner(),
-            engine: Engine::new(),
+            engine: engine,
             printer: Printer::new(),
         }
     }
