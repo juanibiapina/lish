@@ -45,3 +45,10 @@ fn with_one_argument() {
 
     assert_eq!(run(&mut engine, "((fn (a) a) 3)"), "3");
 }
+
+#[test]
+fn argument_and_do() {
+    let mut engine = Engine::new();
+
+    assert_eq!(run(&mut engine, "((fn (a) (do (+ a 1))) 3)"), "4");
+}
