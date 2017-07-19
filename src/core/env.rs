@@ -19,7 +19,7 @@ fn ns() -> HashMap<&'static str, LispValue> {
 
     ns.insert("list", native_function(list::list_c));
 
-    ns.insert("str", native_function(string::str));
+    ns.insert("string-append", native_function(string::string_append));
 
     ns
 }

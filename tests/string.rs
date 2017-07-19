@@ -11,10 +11,10 @@ fn run(input: &str) -> String {
 }
 
 #[test]
-fn str() {
-    assert_eq!(run("(str 1)"), "\"1\"");
-    assert_eq!(run("(str -1)"), "\"-1\"");
-    assert_eq!(run("(str 1 2 3)"), "\"123\"");
-    assert_eq!(run("(str \"value\")"), "\"value\"");
-    assert_eq!(run("(str \"value 1\" \" \" \"value 2\")"), "\"value 1 value 2\"");
+fn string_append() {
+    assert_eq!(run("(string-append 1)"), "\"1\"");
+    assert_eq!(run("(string-append -1)"), "\"-1\"");
+    assert_eq!(run("(string-append 1 2 3)"), "\"123\"");
+    assert_eq!(run("(string-append \"value\")"), "\"value\"");
+    assert_eq!(run("(string-append \"value 1\" \" \" \"value 2\")"), "\"value 1 value 2\"");
 }
