@@ -36,7 +36,7 @@ impl Repl {
             match self.read_eval() {
                 Ok(None) => {}
                 Ok(Some(value)) => {
-                    println!("{}", self.printer.print(&value));
+                    println!("{}", self.printer.print(&value, true));
                 }
                 Err(Error::Interrupted) => {}
                 Err(Error::Eof) => break,
@@ -62,7 +62,7 @@ impl Repl {
                     println!("apply error: unable to apply empty list");
                 }
                 Err(Error::ApplyNonFunction(value)) => {
-                    println!("apply error: expected function, got: {}", self.printer.print(&value));
+                    println!("apply error: expected function, got: {}", self.printer.print(&value, true));
                 }
                 Err(Error::TypeError) => {
                     println!("type error");

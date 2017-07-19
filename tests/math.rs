@@ -7,7 +7,7 @@ fn run(input: &str) -> String {
     let mut engine = Engine::new();
     let printer = Printer::new();
 
-    printer.print(&engine.run(input).unwrap().unwrap())
+    printer.print(&engine.run(input).unwrap().unwrap(), true)
 }
 
 #[test]

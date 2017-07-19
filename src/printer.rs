@@ -7,19 +7,25 @@ impl Printer {
         Printer
     }
 
-    pub fn print(&self, lisp_expr: &LispValue) -> String {
+    pub fn print(&self, lisp_expr: &LispValue, readable: bool) -> String {
         match **lisp_expr {
             LispType::Nil => "nil".to_owned(),
             LispType::Integer(i) => i.to_string(),
-            LispType::Strn(ref s) => s.clone(),
+            LispType::Strn(ref s) => {
+                if readable {
+                    format!("\"{}\"", s.clone())
+                } else {
+                    s.clone()
+                }
+            },
             LispType::Symbol(ref s) => s.clone(),
             LispType::Function(_) => "#<function ...>".to_owned(),
             LispType::NativeFunction(_) => "#<native-function ...>".to_owned(),
-            LispType::List(ref exprs) => self.print_list(exprs),
+            LispType::List(ref exprs) => self.print_list(exprs, readable),
         }
     }
 
-    fn print_list(&self, exprs: &Vec<LispValue>) -> String {
+    fn print_list(&self, exprs: &Vec<LispValue>, readable: bool) -> String {
         let mut first = true;
         let mut res = String::new();
 
@@ -31,7 +37,7 @@ impl Printer {
             } else {
                 res.push_str(" ");
             }
-            res.push_str(&self.print(expr));
+            res.push_str(&self.print(expr, readable));
         }
         res.push_str(")");
         res
@@ -50,7 +56,11 @@ mod tests {
     }
 
     fn print(lisp_expr: &LispValue) -> String {
-        Printer::new().print(lisp_expr)
+        Printer::new().print(lisp_expr, true)
+    }
+
+    fn display(lisp_expr: &LispValue) -> String {
+        Printer::new().print(lisp_expr, false)
     }
 
     #[test]
@@ -70,7 +80,47 @@ mod tests {
 
     #[test]
     fn print_string() {
-        assert_eq!(print(&types::string("lol".to_owned())), "lol");
+        assert_eq!(print(&types::string("lol".to_owned())), "\"lol\"");
+    }
+
+    #[test]
+    fn print_string_in_list() {
+        assert_eq!(
+            print(
+                &types::list(
+                    vec![
+                        types::string("lol".to_owned()),
+                        types::string("lol2".to_owned())
+                    ]
+                )
+            ),
+            "(\"lol\" \"lol2\")"
+        );
+    }
+
+    #[test]
+    fn display_integer() {
+        assert_eq!(display(&types::integer(1)), "1");
+    }
+
+    #[test]
+    fn display_string() {
+        assert_eq!(display(&types::string("lol".to_owned())), "lol");
+    }
+
+    #[test]
+    fn display_string_in_list() {
+        assert_eq!(
+            display(
+                &types::list(
+                    vec![
+                        types::string("lol".to_owned()),
+                        types::string("lol2".to_owned())
+                    ]
+                )
+            ),
+            "(lol lol2)"
+        );
     }
 
     #[test]

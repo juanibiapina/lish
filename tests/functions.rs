@@ -6,7 +6,7 @@ use lish::printer::Printer;
 fn run(engine: &mut Engine, input: &str) -> String {
     let printer = Printer::new();
 
-    printer.print(&engine.run(input).unwrap().unwrap())
+    printer.print(&engine.run(input).unwrap().unwrap(), true)
 }
 
 #[test]
