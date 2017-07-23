@@ -30,3 +30,9 @@ non_existent_command
 
 (1 2 3)
 ;=>apply error: expected function, got: 1
+
+(def ALIASES (hash "e" "echo"))
+;=>nil
+
+e haha
+;=>haha
