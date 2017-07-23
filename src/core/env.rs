@@ -24,6 +24,7 @@ fn ns() -> HashMap<&'static str, LispValue> {
     ns.insert("string-append", native_function(string::string_append));
 
     ns.insert("hash", native_function(hash::hash));
+    ns.insert("hash-set", native_function(hash::hash_set));
 
     ns.insert("display", native_function(printer::display));
     ns.insert("write", native_function(printer::write));
