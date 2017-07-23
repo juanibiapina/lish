@@ -5,6 +5,9 @@ extern crate nom;
 extern crate regex;
 #[macro_use]
 extern crate lazy_static;
+#[cfg(test)]
+#[macro_use]
+extern crate maplit;
 
 mod error;
 mod readliner;

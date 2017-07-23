@@ -7,6 +7,7 @@ use core::file;
 use core::reader;
 use core::list;
 use core::string;
+use core::hash;
 
 fn ns() -> HashMap<&'static str, LispValue> {
     let mut ns = HashMap::new();;
@@ -20,6 +21,8 @@ fn ns() -> HashMap<&'static str, LispValue> {
     ns.insert("list", native_function(list::list_c));
 
     ns.insert("string-append", native_function(string::string_append));
+
+    ns.insert("hash", native_function(hash::hash));
 
     ns
 }

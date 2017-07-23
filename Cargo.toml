@@ -9,6 +9,9 @@ libc = "*"
 regex = "*"
 lazy_static = "*"
 
+[dev-dependencies]
+maplit = "*"
+
 [dependencies.nom]
 git = "https://github.com/Geal/nom.git"
 features = ["regexp", "verbose-errors"]

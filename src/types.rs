@@ -1,6 +1,7 @@
 use std;
 use std::rc::Rc;
 use std::fmt::Debug;
+use std::collections::HashMap;
 
 use error::Result;
 use env::Env;
@@ -27,6 +28,7 @@ pub enum LispType {
     Function(FunctionData),
     NativeFunction(NativeFunctionType),
     List(Vec<LispValue>),
+    HashMap(HashMap<String, LispValue>),
 }
 
 pub type LispValue = Rc<LispType>;
@@ -62,6 +64,10 @@ pub fn nil() -> LispValue {
 
 pub fn list(seq: Vec<LispValue>) -> LispValue {
     Rc::new(LispType::List(seq))
+}
+
+pub fn hash_map(data: HashMap<String, LispValue>) -> LispValue {
+    Rc::new(LispType::HashMap(data))
 }
 
 pub fn integer(i: i64) -> LispValue {

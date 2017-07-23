@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use types::{LispType, LispValue};
 
 pub struct Printer;
@@ -22,6 +24,7 @@ impl Printer {
             LispType::Function(_) => "#<function ...>".to_owned(),
             LispType::NativeFunction(_) => "#<native-function ...>".to_owned(),
             LispType::List(ref exprs) => self.print_list(exprs, readable),
+            LispType::HashMap(ref data) => self.print_hashmap(data, readable),
         }
     }
 
@@ -40,6 +43,24 @@ impl Printer {
             res.push_str(&self.print(expr, readable));
         }
         res.push_str(")");
+        res
+    }
+
+    fn print_hashmap(&self, data: &HashMap<String, LispValue>, readable: bool) -> String {
+        let mut res = String::new();
+
+        res.push_str("{");
+
+        for (name, value) in data {
+            res.push_str(" ");
+            res.push_str("\"");
+            res.push_str(&name);
+            res.push_str("\"");
+            res.push_str(" ");
+            res.push_str(&self.print(value, readable));
+            res.push_str(" ");
+        }
+        res.push_str("}");
         res
     }
 }
@@ -135,6 +156,32 @@ mod tests {
                 )
             ),
             "(lol lol2)"
+        );
+    }
+
+    #[test]
+    fn print_empty_hashmap() {
+        assert_eq!(
+            print(
+                &types::hash_map(
+                    hashmap!{}
+                )
+            ),
+            "{}"
+        );
+    }
+
+    #[test]
+    fn print_hashmap() {
+        assert_eq!(
+            print(
+                &types::hash_map(
+                    hashmap!{
+                        "a".to_owned() => types::integer(1),
+                    }
+                )
+            ),
+            "{ \"a\" 1 }"
         );
     }
 
