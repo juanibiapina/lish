@@ -43,7 +43,7 @@ named!(lex_rparen<&str, Token>,
 
 named!(lex_ident<&str, Token>,
     do_parse!(
-	w: re_capture!(r#"^((?:[[:word:]]|/|-|\+|\*|%|=)+)|^("(?:\\.|[^\\"])*")"#) >>
+	w: re_capture!(r#"^((?:[[:word:]]|/|-|\+|\*|%|=|\.)+)|^("(?:\\.|[^\\"])*")"#) >>
 	(Token::Ident(w[0].to_owned()))
     )
 );
@@ -70,6 +70,11 @@ mod tests {
     #[test]
     fn lex_ident_with_dash() {
         assert_eq!(lex("-lol").unwrap(), vec![Token::Ident("-lol".to_owned())]);
+    }
+
+    #[test]
+    fn lex_ident_with_dots() {
+        assert_eq!(lex(".").unwrap(), vec![Token::Ident(".".to_owned())]);
     }
 
     #[test]
