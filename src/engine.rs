@@ -4,16 +4,18 @@ use std::env;
 
 use lexer::Lexer;
 use parser::Parser;
-use evaluator::{Evaluator};
+use shell_evaluator::ShellEvaluator;
+use lisp_evaluator::LispEvaluator;
 use error::Result;
 use env::Env;
 use core;
-use types::LispValue;
+use types::{Program, LispValue};
 
 pub struct Engine {
     lexer: Lexer,
     parser: Parser,
-    evaluator: Evaluator,
+    shell_evaluator: ShellEvaluator,
+    lisp_evaluator: LispEvaluator,
     env: Env,
 }
 
@@ -24,7 +26,8 @@ impl Engine {
         Engine {
             parser: Parser::new(),
             lexer: Lexer::new(),
-            evaluator: Evaluator::new(),
+            shell_evaluator: ShellEvaluator::new(),
+            lisp_evaluator: LispEvaluator::new(),
             env: core_env,
         }
     }
@@ -34,7 +37,17 @@ impl Engine {
         self.parser.add_tokens(tokens);
         let program = self.parser.parse()?;
 
-        self.evaluator.eval(program, self.env.clone())
+        match program {
+            Program::ShellProgram(shell_expr) => {
+                self.shell_evaluator.eval(shell_expr, self.env.clone())
+            }
+            Program::LispProgram(lisp_expr) => {
+                Ok(Some(self.lisp_evaluator.eval(lisp_expr, self.env.clone())?))
+            }
+            Program::EmptyProgram => {
+                Ok(None)
+            }
+        }
     }
 
     pub fn load_standard_library(&mut self) -> Result<()> {

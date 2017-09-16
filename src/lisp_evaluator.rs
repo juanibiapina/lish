@@ -1,7 +1,4 @@
-use std::process::Command;
-use std::io::ErrorKind;
-
-use types::{self, Program, LispType, LispValue, ShellExpr};
+use types::{self, LispType, LispValue};
 use env::{Env, env_new, env_get, env_set};
 use error::{Error, Result};
 
@@ -25,80 +22,14 @@ impl FormType {
     }
 }
 
-pub struct Evaluator;
+pub struct LispEvaluator;
 
-impl Evaluator {
-    pub fn new() -> Evaluator {
-        Evaluator
+impl LispEvaluator {
+    pub fn new() -> LispEvaluator {
+        LispEvaluator
     }
 
-    pub fn eval(&self, program: Program, env: Env) -> Result<Option<LispValue>> {
-        match program {
-            Program::ShellProgram(shell_expr) => {
-                self.eval_shell_expr(shell_expr, env)
-            }
-            Program::LispProgram(lisp_expr) => {
-                Ok(Some(self.eval_lisp_expr(lisp_expr, env)?))
-            }
-            Program::EmptyProgram => {
-                Ok(None)
-            }
-        }
-    }
-
-    fn eval_shell_expr(&self, shell_expr: ShellExpr, env: Env) -> Result<Option<LispValue>> {
-        let resolved_command = self.resolve_alias(&shell_expr.command, env)?;
-
-        let mut command = Command::new(&resolved_command);
-        command.args(&shell_expr.args);
-
-        let mut child = match command.spawn() {
-            Ok(result) => result,
-            Err(err) => {
-                match err.kind() {
-                    ErrorKind::NotFound => {
-                        return Err(Error::CommandNotFound(shell_expr.command.to_owned()));
-                    }
-                    _ => {
-                        return Err(Error::IoError(err));
-                    }
-                }
-            }
-        };
-
-        child.wait()?;
-
-        Ok(None)
-    }
-
-    fn resolve_alias(&self, name: &str, env: Env) -> Result<String> {
-        let value = env_get(&env, "ALIASES").ok();
-        match value {
-            Some(ref value) => {
-                match *value.clone() {
-                    LispType::HashMap(ref data) => {
-                        match data.get(name) {
-                            Some(value) => {
-                                match **value {
-                                    LispType::Strn(ref value_str) => Ok(value_str.to_owned()),
-                                    _ => Err(Error::TypeError),
-                                }
-                            },
-                            None => {
-                                Ok(name.to_owned())
-                            }
-                        }
-                    },
-                    _ => Err(Error::TypeError),
-                }
-            }
-            None => {
-                Ok(name.to_owned())
-            }
-        }
-    }
-
-    fn eval_lisp_expr(&self, lisp_expr: LispValue, env: Env) -> Result<LispValue> {
+    pub fn eval(&self, lisp_expr: LispValue, env: Env) -> Result<LispValue> {
         match *lisp_expr {
             LispType::List(ref exprs) => {
                 self.apply(exprs.as_slice(), env)
@@ -138,7 +69,7 @@ impl Evaluator {
         let a2 = args[1].clone();
         match *a1 {
             LispType::Symbol(ref name) => {
-                let value = self.eval_lisp_expr(a2, env.clone())?;
+                let value = self.eval(a2, env.clone())?;
                 env_set(&env, name, value);
 
                 Ok(types::nil())
@@ -151,7 +82,7 @@ impl Evaluator {
         let mut result = types::nil();
 
         for arg in args {
-            result = self.eval_lisp_expr(arg.clone(), env.clone())?;
+            result = self.eval(arg.clone(), env.clone())?;
         }
 
         Ok(result)
@@ -184,7 +115,7 @@ impl Evaluator {
                 Err(Error::ApplyEmptyList)
             }
             &[ref head, ref tail..] => {
-                let evaluated_head = self.eval_lisp_expr(head.clone(), env.clone())?;
+                let evaluated_head = self.eval(head.clone(), env.clone())?;
                 let evaluated_tail = self.eval_list(tail, env)?;
 
                 match *evaluated_head {
@@ -199,7 +130,7 @@ impl Evaluator {
                             env_set(&env, name, argument.clone());
                         }
 
-                        self.eval_lisp_expr(body, env)
+                        self.eval(body, env)
                     }
                     _ => {
                         Err(Error::ApplyNonFunction(evaluated_head.clone()))
@@ -210,9 +141,9 @@ impl Evaluator {
     }
 
     fn eval_eval(&self, args: &[LispValue], env: Env) -> Result<LispValue> {
-        let ast = self.eval_lisp_expr(args[0].clone(), env.clone())?;
+        let ast = self.eval(args[0].clone(), env.clone())?;
 
-        self.eval_lisp_expr(ast, env.clone())
+        self.eval(ast, env.clone())
     }
 
     fn eval_ast(&self, lisp_expr: LispValue, env: Env) -> Result<LispValue> {
@@ -231,7 +162,7 @@ impl Evaluator {
         let mut e = vec![];
 
         for expr in list {
-            e.push(self.eval_lisp_expr(expr.clone(), env.clone())?);
+            e.push(self.eval(expr.clone(), env.clone())?);
         }
 
         Ok(e)
@@ -244,27 +175,20 @@ mod tests {
     use super::*;
     use core;
 
-    fn eval(expr: LispValue, env: Env) -> Result<Option<LispValue>> {
-        let evaluator = Evaluator::new();
+    fn eval(expr: LispValue, env: Env) -> Result<LispValue> {
+        let evaluator = LispEvaluator::new();
 
-        evaluator.eval(types::Program::LispProgram(expr), env)
-    }
-
-    #[test]
-    fn eval_empty_program() {
-        let evaluator = Evaluator::new();
-
-        assert_eq!(evaluator.eval(types::Program::EmptyProgram, env_new(None)).unwrap(), None);
+        evaluator.eval(expr, env)
     }
 
     #[test]
     fn eval_lisp_integer() {
-        assert_eq!(eval(types::integer(1), env_new(None)).unwrap().unwrap(), types::integer(1));
+        assert_eq!(eval(types::integer(1), env_new(None)).unwrap(), types::integer(1));
     }
 
     #[test]
     fn eval_lisp_string() {
-        assert_eq!(eval(types::string("value".to_owned()), env_new(None)).unwrap().unwrap(), types::string("value".to_owned()));
+        assert_eq!(eval(types::string("value".to_owned()), env_new(None)).unwrap(), types::string("value".to_owned()));
     }
 
     #[test]
@@ -272,7 +196,7 @@ mod tests {
         let env = env_new(None);
         env_set(&env, "name", types::integer(42));
 
-        assert_eq!(eval(types::symbol("name".to_owned()), env).unwrap().unwrap(), types::integer(42));
+        assert_eq!(eval(types::symbol("name".to_owned()), env).unwrap(), types::integer(42));
     }
 
     #[test]
@@ -287,7 +211,7 @@ mod tests {
                         types::integer(3),
                         types::integer(2),
                     ]
-                ), env).unwrap().unwrap(),
+                ), env).unwrap(),
             types::integer(5)
         );
     }
@@ -310,7 +234,7 @@ mod tests {
                             ]
                         ),
                     ]
-                ), env).unwrap().unwrap(),
+                ), env).unwrap(),
             types::integer(5)
         );
     }
@@ -328,7 +252,7 @@ mod tests {
                 ]
             ),
             env.clone()
-        ).unwrap().unwrap();
+        ).unwrap();
 
         assert_eq!(env_get(&env, "a").unwrap(), types::integer(1));
     }
@@ -359,7 +283,7 @@ mod tests {
                     ]
                 ),
                 env.clone()
-            ).unwrap().unwrap(),
+            ).unwrap(),
             types::integer(7)
         );
     }
@@ -382,7 +306,7 @@ mod tests {
                     ]
                 ),
                 env.clone()
-            ).unwrap().unwrap(),
+            ).unwrap(),
             types::integer(1)
         );
     }
@@ -407,7 +331,7 @@ mod tests {
                     ]
                 ),
                 env.clone()
-            ).unwrap().unwrap(),
+            ).unwrap(),
             types::integer(3)
         );
     }
