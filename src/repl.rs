@@ -1,5 +1,3 @@
-extern crate rustyline;
-
 use error::Error;
 use error::Result;
 
