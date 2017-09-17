@@ -22,11 +22,11 @@ impl FormType {
     }
 }
 
-pub struct LispEvaluator;
+pub struct Evaluator;
 
-impl LispEvaluator {
-    pub fn new() -> LispEvaluator {
-        LispEvaluator
+impl Evaluator {
+    pub fn new() -> Evaluator {
+        Evaluator
     }
 
     pub fn eval(&self, lisp_expr: LispValue, env: Env) -> Result<LispValue> {
@@ -176,7 +176,7 @@ mod tests {
     use core;
 
     fn eval(expr: LispValue, env: Env) -> Result<LispValue> {
-        let evaluator = LispEvaluator::new();
+        let evaluator = Evaluator::new();
 
         evaluator.eval(expr, env)
     }

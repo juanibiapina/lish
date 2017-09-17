@@ -5,7 +5,7 @@ use types::{LispType, LispValue, ShellExpr};
 use env::{Env, env_get};
 use error::{Error, Result};
 
-pub struct ShellEvaluator;
+pub struct Evaluator;
 
 fn get_alias_mapping(name: &str, env: &Env) -> Result<Option<String>> {
     let value = env_get(env, "ALIASES").ok();
@@ -67,9 +67,9 @@ fn make_command(shell_expr: &ShellExpr) -> Command {
     }
 }
 
-impl ShellEvaluator {
-    pub fn new() -> ShellEvaluator {
-        ShellEvaluator
+impl Evaluator {
+    pub fn new() -> Evaluator {
+        Evaluator
     }
 
     pub fn eval(&self, shell_expr: ShellExpr, env: Env) -> Result<Option<LispValue>> {

@@ -4,8 +4,8 @@ use std::env;
 
 use lexer::tokenize;
 use parser::Parser;
-use shell_evaluator::ShellEvaluator;
-use lisp_evaluator::LispEvaluator;
+use shell::evaluator::Evaluator as ShellEvaluator;
+use lisp::evaluator::Evaluator as LispEvaluator;
 use error::Result;
 use env::Env;
 use core;

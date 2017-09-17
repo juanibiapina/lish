@@ -16,8 +16,8 @@ mod types;
 mod lexer;
 mod parser;
 mod env;
-mod shell_evaluator;
-mod lisp_evaluator;
+mod lisp;
+mod shell;
 mod core;
 
 pub mod printer;
