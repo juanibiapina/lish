@@ -27,8 +27,8 @@ impl Parser {
         self.tokens.extend(tokens);
     }
 
-    pub fn parse(&mut self) -> Result<types::Program> {
-        self.read_program()
+    pub fn parse(&mut self) -> Result<types::LispValue> {
+        self.read()
     }
 
     fn next(&mut self) -> Option<Token> {
@@ -56,27 +56,7 @@ impl Parser {
         }
     }
 
-    fn read_program(&mut self) -> Result<types::Program> {
-        let token = self.peek();
-
-        match token {
-            Some(token) => {
-                match token {
-                    Token::LParen => {
-                        Ok(types::Program::LispProgram(self.read_lisp()?))
-                    }
-                    _ => {
-                        Ok(types::Program::ShellProgram(self.read_shell()?))
-                    }
-                }
-            },
-            None => {
-                Ok(types::Program::EmptyProgram)
-            }
-        }
-    }
-
-    fn read_lisp(&mut self) -> Result<types::LispValue> {
+    fn read(&mut self) -> Result<types::LispValue> {
         let token = self.peek();
 
         match token {
@@ -111,7 +91,7 @@ impl Parser {
                             break;
                         }
                         _ => {
-                            forms.push(self.read_lisp()?);
+                            forms.push(self.read()?);
                         }
                     }
                 }
@@ -151,34 +131,15 @@ impl Parser {
         }
 
     }
-
-    fn read_shell(&mut self) -> Result<types::ShellExpr> {
-        let mut words = vec![];
-
-        while let Some(token) = self.next() {
-            match token {
-                Token::Ident(token) => {
-                    words.push(token);
-                },
-                _ => {
-                    return Err(Error::ParseError);
-                }
-            }
-        }
-
-        Ok(types::ShellExpr {
-            words: words,
-        })
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use types::*;
     use super::*;
-    use lexer::tokenize;
+    use lisp::lexer::tokenize;
 
-    fn parse(input: &str) -> Result<Program> {
+    fn parse(input: &str) -> Result<LispValue> {
         let tokens = tokenize(input).unwrap();
 
         let mut parser = Parser::new();
@@ -187,35 +148,19 @@ mod tests {
         parser.parse()
     }
 
-    fn assert_input_with_ast(input: &str, expected: Program) {
-        let program = parse(input).unwrap();
+    fn assert_input_with_ast(input: &str, expected: LispValue) {
+        let parsed = parse(input).unwrap();
 
-        assert_eq!(program, expected);
-    }
-
-    #[test]
-    fn parse_shell_expr() {
-        let input = "ls -la file";
-        let expected = Program::ShellProgram(ShellExpr {
-            words: vec![
-                "ls".to_owned(),
-                "-la".to_owned(),
-                "file".to_owned()
-            ],
-        });
-
-        assert_input_with_ast(input, expected);
+        assert_eq!(parsed, expected);
     }
 
     #[test]
     fn parse_nil() {
         let input = "(nil)";
-        let expected = Program::LispProgram(
-            types::list(
-                vec![
-                    types::nil(),
-                ]
-            )
+        let expected = types::list(
+            vec![
+                types::nil(),
+            ]
         );
 
         assert_input_with_ast(input, expected);
@@ -224,14 +169,12 @@ mod tests {
     #[test]
     fn parse_simple_lisp_expression() {
         let input = "(ls a b)";
-        let expected = Program::LispProgram(
-            types::list(
-                vec![
-                    types::symbol("ls".to_owned()),
-                    types::symbol("a".to_owned()),
-                    types::symbol("b".to_owned())
-                ]
-            )
+        let expected = types::list(
+            vec![
+                types::symbol("ls".to_owned()),
+                types::symbol("a".to_owned()),
+                types::symbol("b".to_owned())
+            ]
         );
 
         assert_input_with_ast(input, expected);
@@ -240,18 +183,16 @@ mod tests {
     #[test]
     fn parse_nested_lisp_expression() {
         let input = "((ls -42) b)";
-        let expected = Program::LispProgram(
-            types::list(
-                vec![
-                    types::list(
-                        vec![
-                            types::symbol("ls".to_owned()),
-                            types::integer(-42)
-                        ]
-                    ),
-                    types::symbol("b".to_owned())
-                ]
-            )
+        let expected = types::list(
+            vec![
+                types::list(
+                    vec![
+                        types::symbol("ls".to_owned()),
+                        types::integer(-42)
+                    ]
+                ),
+                types::symbol("b".to_owned())
+            ]
         );
 
         assert_input_with_ast(input, expected);
@@ -260,12 +201,10 @@ mod tests {
     #[test]
     fn parse_string() {
         let input = "(\"string value\")";
-        let expected = Program::LispProgram(
-            types::list(
-                vec![
-                    types::string("string value".to_owned())
-                ]
-            )
+        let expected = types::list(
+            vec![
+                types::string("string value".to_owned())
+            ]
         );
 
         assert_input_with_ast(input, expected);
@@ -274,13 +213,11 @@ mod tests {
     #[test]
     fn parse_two_strings_on_same_line() {
         let input = "(\"a\" \"b\")";
-        let expected = Program::LispProgram(
-            types::list(
-                vec![
-                    types::string("a".to_owned()),
-                    types::string("b".to_owned())
-                ]
-            )
+        let expected = types::list(
+            vec![
+                types::string("a".to_owned()),
+                types::string("b".to_owned())
+            ]
         );
 
         assert_input_with_ast(input, expected);
@@ -289,13 +226,11 @@ mod tests {
     #[test]
     fn parse_string_with_quotes() {
         let input = "(\"a \\\" \" \"b\")";
-        let expected = Program::LispProgram(
-            types::list(
-                vec![
-                    types::string("a \\\" ".to_owned()),
-                    types::string("b".to_owned())
-                ]
-            )
+        let expected = types::list(
+            vec![
+                types::string("a \\\" ".to_owned()),
+                types::string("b".to_owned())
+            ]
         );
 
         assert_input_with_ast(input, expected);

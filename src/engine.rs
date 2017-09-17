@@ -2,19 +2,16 @@ use std::fs::File;
 use std::io::Read;
 use std::env;
 
-use lexer::tokenize;
-use parser::Parser;
-use shell::evaluator::Evaluator as ShellEvaluator;
-use lisp::evaluator::Evaluator as LispEvaluator;
+use shell::engine::Engine as ShellEngine;
+use lisp::engine::Engine as LispEngine;
 use error::Result;
 use env::Env;
 use core;
-use types::{Program, LispValue};
+use types::LispValue;
 
 pub struct Engine {
-    parser: Parser,
-    shell_evaluator: ShellEvaluator,
-    lisp_evaluator: LispEvaluator,
+    lisp_engine: LispEngine,
+    shell_engine: ShellEngine,
     env: Env,
 }
 
@@ -23,27 +20,25 @@ impl Engine {
         let core_env = core::env::create();
 
         Engine {
-            parser: Parser::new(),
-            shell_evaluator: ShellEvaluator::new(),
-            lisp_evaluator: LispEvaluator::new(),
+            lisp_engine: LispEngine::new(),
+            shell_engine: ShellEngine::new(),
             env: core_env,
         }
     }
 
     pub fn run(&mut self, input: &str) -> Result<Option<LispValue>> {
-        let tokens = tokenize(input)?;
-        self.parser.add_tokens(tokens);
-        let program = self.parser.parse()?;
+        let first_char = input.chars().next();
 
-        match program {
-            Program::ShellProgram(shell_expr) => {
-                self.shell_evaluator.eval(shell_expr, self.env.clone())
-            }
-            Program::LispProgram(lisp_expr) => {
-                Ok(Some(self.lisp_evaluator.eval(lisp_expr, self.env.clone())?))
-            }
-            Program::EmptyProgram => {
-                Ok(None)
+        match first_char {
+            None => Ok(None),
+            Some(c) => {
+                if c == '(' {
+                    Ok(Some(self.lisp_engine.run(input, self.env.clone())?))
+                } else {
+                    self.shell_engine.run(input, self.env.clone())?;
+
+                    Ok(None)
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 use std::process::Command;
 use std::io::ErrorKind;
 
-use types::{LispType, LispValue, ShellExpr};
+use types::{LispType, ShellExpr};
 use env::{Env, env_get};
 use error::{Error, Result};
 
@@ -72,7 +72,7 @@ impl Evaluator {
         Evaluator
     }
 
-    pub fn eval(&self, shell_expr: ShellExpr, env: Env) -> Result<Option<LispValue>> {
+    pub fn eval(&self, shell_expr: ShellExpr, env: Env) -> Result<()> {
         let expr = resolve_alias(shell_expr, env)?;
 
         let mut command = make_command(&expr);
@@ -93,6 +93,6 @@ impl Evaluator {
 
         child.wait()?;
 
-        Ok(None)
+        Ok(())
     }
 }

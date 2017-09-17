@@ -1,1 +1,5 @@
-pub mod evaluator;
+mod evaluator;
+pub mod lexer;
+pub mod parser;
+
+pub mod engine;

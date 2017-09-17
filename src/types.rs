@@ -7,13 +7,6 @@ use error::Result;
 use env::Env;
 
 #[derive(PartialEq, Debug)]
-pub enum Program {
-    ShellProgram(ShellExpr),
-    LispProgram(LispValue),
-    EmptyProgram,
-}
-
-#[derive(PartialEq, Debug)]
 pub struct ShellExpr {
     pub words: Vec<String>,
 }

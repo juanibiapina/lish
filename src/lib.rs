@@ -13,8 +13,6 @@ mod error;
 mod readliner;
 mod token;
 mod types;
-mod lexer;
-mod parser;
 mod env;
 mod lisp;
 mod shell;

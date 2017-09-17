@@ -1,7 +1,7 @@
-use lexer::tokenize;
-use parser::Parser;
+use lisp::lexer::tokenize;
+use lisp::parser::Parser;
 use error::{Error, Result};
-use types::{LispValue, LispType, Program};
+use types::{LispValue, LispType};
 
 pub fn read(args: &[LispValue]) -> Result<LispValue> {
     match *args[0] {
@@ -11,10 +11,7 @@ pub fn read(args: &[LispValue]) -> Result<LispValue> {
             let tokens = tokenize(value)?;
             parser.add_tokens(tokens);
 
-            match parser.parse()? {
-                Program::LispProgram(value) => Ok(value),
-                _ => Err(Error::TypeError),
-            }
+            parser.parse()
         },
         _ => Err(Error::TypeError),
     }
