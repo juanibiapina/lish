@@ -153,14 +153,12 @@ impl Parser {
     }
 
     fn read_shell(&mut self) -> Result<types::ShellExpr> {
-        let command = self.read_ident()?;
-
-        let mut args = vec![];
+        let mut words = vec![];
 
         while let Some(token) = self.next() {
             match token {
                 Token::Ident(token) => {
-                    args.push(token);
+                    words.push(token);
                 },
                 _ => {
                     return Err(Error::ParseError);
@@ -169,25 +167,8 @@ impl Parser {
         }
 
         Ok(types::ShellExpr {
-            command: command,
-            args: args,
+            words: words,
         })
-    }
-
-    fn read_ident(&mut self) -> Result<String> {
-        let token = self.next();
-
-        match token {
-            Some(Token::Ident(token)) => {
-                Ok(token)
-            },
-            Some(_) => {
-                Err(Error::ParseError)
-            },
-            None => {
-                Err(Error::ParseError)
-            }
-        }
     }
 }
 
@@ -216,8 +197,8 @@ mod tests {
     fn parse_shell_expr() {
         let input = "ls -la file";
         let expected = Program::ShellProgram(ShellExpr {
-            command: "ls".to_owned(),
-            args: vec![
+            words: vec![
+                "ls".to_owned(),
                 "-la".to_owned(),
                 "file".to_owned()
             ],

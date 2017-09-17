@@ -15,8 +15,7 @@ pub enum Program {
 
 #[derive(PartialEq, Debug)]
 pub struct ShellExpr {
-    pub command: String,
-    pub args: Vec<String>,
+    pub words: Vec<String>,
 }
 
 #[derive(PartialEq, Debug)]
