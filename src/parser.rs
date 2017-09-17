@@ -176,10 +176,10 @@ impl Parser {
 mod tests {
     use types::*;
     use super::*;
-    use lexer::Lexer;
+    use lexer::tokenize;
 
     fn parse(input: &str) -> Result<Program> {
-        let tokens = Lexer::new().tokenize(input).unwrap();
+        let tokens = tokenize(input).unwrap();
 
         let mut parser = Parser::new();
         parser.add_tokens(tokens);

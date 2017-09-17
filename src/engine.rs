@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::Read;
 use std::env;
 
-use lexer::Lexer;
+use lexer::tokenize;
 use parser::Parser;
 use shell_evaluator::ShellEvaluator;
 use lisp_evaluator::LispEvaluator;
@@ -12,7 +12,6 @@ use core;
 use types::{Program, LispValue};
 
 pub struct Engine {
-    lexer: Lexer,
     parser: Parser,
     shell_evaluator: ShellEvaluator,
     lisp_evaluator: LispEvaluator,
@@ -25,7 +24,6 @@ impl Engine {
 
         Engine {
             parser: Parser::new(),
-            lexer: Lexer::new(),
             shell_evaluator: ShellEvaluator::new(),
             lisp_evaluator: LispEvaluator::new(),
             env: core_env,
@@ -33,7 +31,7 @@ impl Engine {
     }
 
     pub fn run(&mut self, input: &str) -> Result<Option<LispValue>> {
-        let tokens = self.lexer.tokenize(input)?;
+        let tokens = tokenize(input)?;
         self.parser.add_tokens(tokens);
         let program = self.parser.parse()?;
 
