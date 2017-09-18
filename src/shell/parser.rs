@@ -1,8 +1,7 @@
 use std::collections::VecDeque;
 
-use token::Token;
+use shell::token::Token;
 use error::Result;
-use error::Error;
 use types;
 
 pub struct Parser {
@@ -36,9 +35,6 @@ impl Parser {
                 Token::Ident(token) => {
                     words.push(token);
                 },
-                _ => {
-                    return Err(Error::ParseError);
-                }
             }
         }
 

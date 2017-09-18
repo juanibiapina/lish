@@ -11,7 +11,6 @@ extern crate maplit;
 
 mod error;
 mod readliner;
-mod token;
 mod types;
 mod env;
 mod lisp;

@@ -2,7 +2,7 @@ use std::str;
 
 use nom::IResult;
 
-use token::Token;
+use shell::token::Token;
 use error::Result;
 use error::Error;
 

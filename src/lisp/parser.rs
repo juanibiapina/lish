@@ -2,7 +2,7 @@ extern crate regex;
 
 use std::collections::VecDeque;
 
-use token::Token;
+use lisp::token::Token;
 use error::Result;
 use error::Error;
 use types;
