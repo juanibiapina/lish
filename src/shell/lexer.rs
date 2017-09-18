@@ -15,23 +15,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>> {
     }
 }
 
-named!(lex_tokens<&str, Vec<Token>>, ws!(many0!(lex_token)));
-
-named!(lex_token<&str, Token>,
-    alt_complete!(
-	lex_lparen |
-	lex_rparen |
-	lex_ident
-    )
-);
-
-named!(lex_lparen<&str, Token>,
-    do_parse!(tag!("(") >> (Token::LParen))
-);
-
-named!(lex_rparen<&str, Token>,
-    do_parse!(tag!(")") >> (Token::RParen))
-);
+named!(lex_tokens<&str, Vec<Token>>, ws!(many0!(lex_ident)));
 
 named!(lex_ident<&str, Token>,
     do_parse!(
@@ -89,16 +73,6 @@ mod tests {
     #[test]
     fn lex_ident_with_quotes() {
         assert_eq!(tokenize("\"abc def\"").unwrap(), vec!(Token::Ident("\"abc def\"".to_owned())));
-    }
-
-    #[test]
-    fn lex_left_parenthesis() {
-        assert_eq!(tokenize("(").unwrap(), vec!(Token::LParen));
-    }
-
-    #[test]
-    fn lex_right_parenthesis() {
-        assert_eq!(tokenize(")").unwrap(), vec!(Token::RParen));
     }
 
     #[test]
