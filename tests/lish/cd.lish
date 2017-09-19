@@ -1,0 +1,4 @@
+cd dir1
+
+ls
+;=>file1

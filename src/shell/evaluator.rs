@@ -9,6 +9,7 @@ pub struct Evaluator;
 
 enum Builtin {
     Echo,
+    Cd,
 }
 
 enum CommandType {
@@ -18,6 +19,7 @@ enum CommandType {
 
 fn resolve_command_type(cmd: String) -> CommandType {
     match cmd.as_ref() {
+        "cd" => CommandType::Builtin(Builtin::Cd),
         "echo" => CommandType::Builtin(Builtin::Echo),
         _ => CommandType::External(cmd),
     }
@@ -67,6 +69,7 @@ fn run_external(cmd: String, args: Vec<String>) -> Result<()> {
 
 fn run_builtin(builtin: Builtin, args: Vec<String>) -> Result<()> {
     match builtin {
+        Builtin::Cd => builtins::cd::run(args),
         Builtin::Echo => builtins::echo::run(args),
     }
 }
