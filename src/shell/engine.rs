@@ -43,9 +43,7 @@ fn resolve_alias(tokens: Vec<Token>, env: Env) -> Result<Vec<Token>> {
     match mapping {
         None => Ok(tokens),
         Some(value) => {
-            let mut words = vec![];
-
-            words.push(Token::Ident(value));
+            let mut words = tokenize(&value)?;
 
             if let Some((_, args)) = tokens.split_first() {
                 words.extend_from_slice(args);

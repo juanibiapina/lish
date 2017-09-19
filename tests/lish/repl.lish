@@ -36,3 +36,9 @@ non_existent_command
 
 e haha
 ;=>haha
+
+(def ALIASES (hash "e" "echo lol"))
+;=>nil
+
+e
+;=>lol
