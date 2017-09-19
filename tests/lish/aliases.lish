@@ -1,0 +1,11 @@
+(def ALIASES (hash "e" "echo"))
+;=>nil
+
+e haha
+;=>haha
+
+(def ALIASES (hash "e" "echo lol"))
+;=>nil
+
+e
+;=>lol

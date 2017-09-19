@@ -1,0 +1,20 @@
+(ls
+;=>parser error
+
+(undefinedthing 1 2)
+;=>lookup error: undefined binding: undefinedthing
+
+(+ 1 2)
+;=>3
+
+(+ (- 4 2) 3)
+;=>5
+
+(def n1 1)
+;=>nil
+
+(+ n1 1)
+;=>2
+
+(1 2 3)
+;=>apply error: expected function, got: 1

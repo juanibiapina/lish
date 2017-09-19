@@ -1,0 +1,11 @@
+/bin/echo lol
+;=>lol
+
+/bin/echo text
+;=>text
+
+non_existent_command
+;=>shell error: command not found: non_existent_command
+
+|
+;=>lexer error: unexpected character `|`

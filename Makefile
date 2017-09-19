@@ -11,4 +11,6 @@ test_unit:
 
 .PHONY: test
 test: build_debug test_unit
-	scripts/run-repl tests/lish/repl.lish
+	scripts/run-repl tests/lish/simple_shell.lish
+	scripts/run-repl tests/lish/simple_lisp.lish
+	scripts/run-repl tests/lish/aliases.lish
