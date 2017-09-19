@@ -33,42 +33,38 @@ impl Engine {
     }
 }
 
-fn extract_head_for_alias(tokens: &[Token]) -> Option<String> {
-    match tokens[0] {
-        Token::Ident(ref name) => Some(name.to_owned()),
-    }
-}
-
 fn resolve_alias(tokens: Vec<Token>, env: Env) -> Result<Vec<Token>> {
-    let head = extract_head_for_alias(&tokens);
+    if tokens.len() < 1 {
+        return Ok(tokens);
+    }
 
-    match head {
+    let mapping = get_alias_mapping(&tokens[0], &env)?;
+
+    match mapping {
         None => Ok(tokens),
-        Some(head) => {
-            let mapping = get_alias_mapping(&head, &env)?;
+        Some(value) => {
+            let mut words = vec![];
 
-            match mapping {
-                None => Ok(tokens),
-                Some(value) => {
-                    let mut words = vec![];
+            words.push(Token::Ident(value));
 
-                    words.push(Token::Ident(value));
+            if let Some((_, args)) = tokens.split_first() {
+                words.extend_from_slice(args);
 
-                    if let Some((_, args)) = tokens.split_first() {
-                        words.extend_from_slice(args);
-
-                        Ok(words)
-                    } else {
-                        panic!("impossible");
-                    }
-                }
+                Ok(words)
+            } else {
+                panic!("impossible");
             }
         }
     }
 }
 
-fn get_alias_mapping(name: &str, env: &Env) -> Result<Option<String>> {
+fn get_alias_mapping(token: &Token, env: &Env) -> Result<Option<String>> {
+    let name = match token {
+        &Token::Ident(ref data) => data,
+    };
+
     let value = env_get(env, "ALIASES").ok();
+
     match value {
         Some(ref value) => {
             match *value.clone() {
