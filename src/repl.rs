@@ -22,6 +22,11 @@ impl Repl {
             Err(e) => panic!("{:?}", e),
         };
 
+        match engine.load_initrc() {
+            Ok(()) => {},
+            Err(e) => panic!("{:?}", e),
+        }
+
         Repl {
             readliner: create_readliner(),
             engine: engine,

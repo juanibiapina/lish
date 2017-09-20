@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 use std::env;
+use std::env::home_dir;
 
 use shell::engine::Engine as ShellEngine;
 use lisp::engine::Engine as LispEngine;
@@ -56,6 +57,26 @@ impl Engine {
         let stdlib_path = dir.to_str().unwrap();
 
         self.load_file(stdlib_path)
+    }
+
+    pub fn load_initrc(&mut self) -> Result<()> {
+        let mut path = match home_dir() {
+            Some(path) => path,
+            None => panic!("Could not determine HOME directory"),
+        };
+
+        path.push(".lishrc.lish");
+
+        if path.exists() {
+            let config_file_path = match path.to_str() {
+                Some(value) => value,
+                None => panic!("Could not determine HOME directory"),
+            };
+
+            self.load_file(config_file_path)
+        } else {
+            Ok(())
+        }
     }
 
     pub fn load_file(&mut self, file_name: &str) -> Result<()> {
