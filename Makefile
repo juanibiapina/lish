@@ -15,3 +15,4 @@ test: build_debug test_unit
 	scripts/run-repl tests/lish/simple_lisp.lish
 	scripts/run-repl tests/lish/aliases.lish
 	scripts/run-repl tests/lish/cd.lish
+	scripts/run-repl tests/lish/environment.lish

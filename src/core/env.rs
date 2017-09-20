@@ -9,6 +9,7 @@ use core::list;
 use core::string;
 use core::hash;
 use core::printer;
+use core::environment;
 
 fn ns() -> HashMap<&'static str, LispValue> {
     let mut ns = HashMap::new();;
@@ -28,6 +29,9 @@ fn ns() -> HashMap<&'static str, LispValue> {
 
     ns.insert("display", native_function(printer::display));
     ns.insert("write", native_function(printer::write));
+
+    ns.insert("env-get", native_function(environment::env_get));
+    ns.insert("env-set", native_function(environment::env_set));
 
     ns
 }

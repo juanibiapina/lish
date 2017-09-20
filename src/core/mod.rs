@@ -5,5 +5,6 @@ mod list;
 mod string;
 mod printer;
 mod hash;
+mod environment;
 
 pub mod env;

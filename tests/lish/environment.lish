@@ -1,0 +1,5 @@
+(env-set "a" "value")
+;=>nil
+
+(env-get "a")
+;=>"value"
