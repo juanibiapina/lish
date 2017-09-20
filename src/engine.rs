@@ -55,8 +55,13 @@ impl Engine {
 
         let stdlib_path = dir.to_str().unwrap();
 
+        self.load_file(stdlib_path)
+    }
+
+    pub fn load_file(&mut self, file_name: &str) -> Result<()> {
         let mut buffer = String::new();
-        File::open(stdlib_path).and_then(|mut f| f.read_to_string(&mut buffer))?;
+
+        File::open(file_name).and_then(|mut f| f.read_to_string(&mut buffer))?;
 
         self.run(&format!("(do {})", buffer))?;
 
