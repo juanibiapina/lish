@@ -8,7 +8,7 @@ use printer::Printer;
 use types::LispValue;
 
 pub struct Repl {
-    readliner: Box<Readliner>,
+    readliner: Box<dyn Readliner>,
     engine: Engine,
     printer: Printer,
 }

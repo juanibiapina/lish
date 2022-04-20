@@ -54,7 +54,7 @@ impl Readliner for StdinReadliner {
     }
 }
 
-pub fn create_readliner() -> Box<Readliner> {
+pub fn create_readliner() -> Box<dyn Readliner> {
     let istty = unsafe { libc::isatty(libc::STDIN_FILENO as i32) } != 0;
 
     if istty {

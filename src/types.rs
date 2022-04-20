@@ -33,7 +33,7 @@ pub struct FunctionData {
 }
 
 pub struct NativeFunctionType {
-    pub body: (fn(&[LispValue]) -> Result<LispValue>),
+    pub body: fn(&[LispValue]) -> Result<LispValue>,
 }
 
 impl PartialEq for NativeFunctionType {
@@ -74,7 +74,7 @@ pub fn symbol(value: String) -> LispValue {
     Rc::new(LispType::Symbol(value))
 }
 
-pub fn native_function(f: (fn(&[LispValue]) -> Result<LispValue>)) -> LispValue {
+pub fn native_function(f: fn(&[LispValue]) -> Result<LispValue>) -> LispValue {
     Rc::new(LispType::NativeFunction(NativeFunctionType{ body: f }))
 }
 

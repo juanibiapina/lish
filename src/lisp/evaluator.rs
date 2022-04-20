@@ -43,7 +43,7 @@ impl Evaluator {
             &[] => {
                 Ok(types::list(vec![]))
             }
-            &[ref head, ref tail..] => {
+            &[ref head, ref tail @ ..] => {
                 let form_type = match *head.clone() {
                     LispType::Symbol(ref name) => {
                         FormType::from(name)
@@ -114,7 +114,7 @@ impl Evaluator {
             &[] => {
                 Err(Error::ApplyEmptyList)
             }
-            &[ref head, ref tail..] => {
+            &[ref head, ref tail @ ..] => {
                 let evaluated_head = self.eval(head.clone(), env.clone())?;
                 let evaluated_tail = self.eval_list(tail, env)?;
 

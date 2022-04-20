@@ -12,7 +12,7 @@ use core::printer;
 use core::environment;
 
 fn ns() -> HashMap<&'static str, LispValue> {
-    let mut ns = HashMap::new();;
+    let mut ns = HashMap::new();
 
     ns.insert("+", native_function(math::add));
     ns.insert("-", native_function(math::sub));
